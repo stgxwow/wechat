@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>学员成绩录入</title>
+	<link rel="stylesheet" href="__STATIC__/bootstrap/css/bootstrap.min.css" type="text/css" />
+	<link rel="stylesheet" href="__STATIC__/layui/css/layui.css" type="text/css" />
+	<link rel="stylesheet" href="__STATIC__/css/font-awesome.css" type="text/css" />
+	<script src="__STATIC__/js/jquery.min.js"></script>
+	<link rel="stylesheet" href="__STATIC__/css/skins/skin-blue.min.css"type="text/css"/>
+	<link rel="stylesheet" href="__STATIC__/css/index.css" type="text/css"/>
+	<link href="__STATIC__/css/mcommon.css?v=2.0.6_180726" rel="stylesheet" type="text/css" />
+</head>
+<body ms-controller="sub" class="hold-transition skin-blue sidebar-mini" style="display:none;" ms-visible="display">
+	<div>
+		<div class="alert alert-success alert-tips fade in">
+			<div class="head">
+				<i class="fa fa-lightbulb-o"></i>
+				操作说明
+			</div>
+			<ul class="body">
+				<li>该功能主要用于录入学员成绩。选择好项目和班级后,会自动列出班级下的所有学员,点击学员名称,会自动把学员信息填入右侧相应的编辑栏.也可以在学生姓名的文本框中输入学生姓名进行查询选择.注意,需要选择分组与学员对应的课程名称以后才能录入学员成绩.</li>
+			</ul>
+		</div>
+		<div class="wst-toolbar">
+			<select class="form-control" ms-duplex="@catchitem.proId">
+				<option disabled selected value="">请选择项目名称</option>
+				<option ms-for="el in @program_list" ms-attr="{value:el.proId}" ms-text="el.proName"></option>
+			</select>
+			<select class="form-control" ms-duplex="@catchitem.classId">
+				<option value="">请选择班级名称</option>
+				<option ms-for="el in @class_arr" ms-attr="{value:el.classId}" ms-text="el.className"></option>
+			</select>
+			<select class="form-control" ms-duplex="@group" ms-attr-disabled="@update > 0">
+				<option disabled selected value="0">请选择成绩分组</option>
+				<option ms-for="el in @group_list" ms-attr="{value:el.groupId}" ms-text="el.groupName"></option>
+			</select>
+			<!-- <button class="btn btn-success f-right" ms-click="toAdd">
+				<i class="fa fa-plus"></i>
+				新增
+			</button> -->
+		</div>
+	</div>
+	<div>
+		<div class="mmg mmg-body">
+			<div class="name-tree">
+				<ul class="student-box">
+					<li class="student-item" ms-for="(idx,el) in @stu_list" ms-text="el.studentName" ms-click="checkStudent(el)"></li>
+				</ul>
+			</div>
+			<table class="mmg-head wst-form wst-box-top top-tab" style="width:60%;float:left;margin:0 auto;border-left:1px solid #dedede;" cellspacing="0" cellpadding="0" >
+				<tbody>
+					<tr style="padding-top:30px;">
+						<th width="150">学生姓名<font color="red">*</font>：</th>
+						<td>
+							<input type="text" id="search" class="ipt" style="width:350px;" ms-duplex="@search_key" data-duplex-changed="nameChaged">
+							<ul class="select-student ipt" ms-if="@search_result.length > 0">
+								<li class="select-item" ms-for="(idx,el) in @search_result" ms-text="el.studentName" ms-click="selectName(el)"></li>
+							</ul>
+							<input type="text" class="ipt" style="width:350px;display:none;" ms-duplex="@studentId">
+						</td>
+					</tr>
+					<tr>
+						<th width="150">包含课程<font color="red">*</font>：</th>
+						<td>
+							<div style="width:350px;">
+								<label style="display:inline-block;width:105px;" ms-for="(idx,el) in @course_list">
+									<input type="checkbox" ms-duplex-checked="el.checked" data-duplex-change="@changeCourse">(|el.courseName|)
+								</label>
+							</div>
+							
+						</td>
+					</tr>
+					<tr>
+						<th width="150">学生成绩<font color="red">*</font>：</th>
+						<td class="score-list-box">
+							<div class="score-list" ms-for="(idx,el) in @course_list" ms-visible="el.checked">
+								<span class="score-title" ms-text="el.courseName"></span>
+								<input type="text" class="ipt" style="width:200px;" ms-duplex="el.score">
+							</div>
+						</td>
+						
+					</tr>
+					<tr>
+						<th width="150">是否有效<font color="red">*</font>：</th>
+						<td>
+							<select class="ipt" style="width:350px;" ms-duplex="@dataFlag">
+								<option value="1">有效</option>
+								<option value="0">无效</option>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<th width="150">&nbsp;</th>
+						<td style="text-align:center;color:red;" ms-visible="err.err" ms-text="err.msg">1</td>
+					</tr>
+					<tr>
+						<th width="150">&nbsp;</th>
+						<td>	
+								<button class="btn btn-green pull-reight-50 pull-left-100" ms-click="toSave">
+									<i class="fa fa-check"></i>保存
+								</button>
+								<button class="btn btn-green pull-reight-50" ms-click="resetItem">
+									<i class="fa fa-check"></i>重置
+								</button>
+								<button class="btn btn-red" ms-click="returnList">
+									<i class="fa fa-angle-double-left"></i>返回
+								</button>
+								
+								
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+	
+<script src="__STATIC__/js/layer/layer.js"></script>
+<script src="__STATIC__/layui/layui.js"></script>
+<script src="__STATIC__/js/avalon2.2.8.js"></script>
+<!-- <script src="https://unpkg.com/avalon2@2.2.8/dist/avalon.js"></script> -->
+<script src="__STATIC__/js/jquery.cookie.min.js"></script>
+<script src="__STATIC__/js/jQuery.md5.js"></script>
+<script src="__STATIC__/js/logic.js"></script>
+<script src="__STATIC__/js/validator.js"></script>
+<script src="__STATIC__/js/common.js"></script>
+<script>
+jQuery(document).ready(function(){
+	avalon.config({
+		interpolate : ["(|","|)"]
+	});
+
+	var sid = QueryString("studentId");
+	var gid = QueryString("groupId");
+	var backUri = QueryString("backUri");
+	if(!backUri) backUri="";
+	backUri = decodeURIComponent(backUri);
+	var update = 0;//编辑模式,update为1代表编辑,为0代表新增;
+	if(sid > 0 ){
+		if(gid <= 0){
+			gid = 0;
+			if(window.confirm("请正确选择成绩分组,点击确定返回上一步")){
+				window.history.back(-1);
+			}
+		}else{
+			update = 1;
+		}
+	}else{
+		sid = 0;
+	}
+	layui.use(['form'], function(){});
+	logic_user.read();
+	TX.setPageBox();
+	var vm = avalon.define({
+		$id:"sub",
+		display:true,
+		model:0,
+		update:0,
+		studentId:0,
+		dataFlag:1,
+		backUri:'',
+		returnUri:'/home/index/mark',
+		dis_model:"list",
+		catchitem:{proId:'',classId:0},
+		program_list:[],
+		group_list:[],
+		group:0,
+		class_arr:[],
+		student_list:[],
+		stu_list:[],
+		course_list:[],
+		class_list:[],
+		mark_list:[],
+		search_key:'',
+		search_invi:true,
+		search_result:[],
+		err:{err:false,msg:""},
+		canEdit:false,
+		claAr:[],
+		load:function(){
+			TX.msg('努力加载中...',{time:30000});
+			$.post(logic_urls.adminMarkInput,{},
+				function(data){
+					var json = TX.toJson(data);
+					console.log(json);
+					if(json.status == 1){
+						layer.closeAll();
+						vm.program_list = json.program_list;
+						vm.class_list = json.class_list;
+						vm.course_list = [];
+						vm.group_list = json.group_list;
+						vm.studentId = sid,
+						vm.group = gid;
+						vm.update = update;
+						vm.setCourseList(0,json.course_list);
+						if(vm.update == 1){
+							vm.mark_list = json.data;
+							vm.getMark();
+						}
+						vm.claAr = logic_user.classArr;
+						vm.backUri = backUri;
+					}else{
+						TX.msg(json.msg,{time:5000});
+					}
+				}
+			);
+			vl = $("#search").offset().top;
+		},
+		getMark:function(){
+			var vd = {
+				studentId:vm.studentId,
+				markGroup:vm.group
+			}
+			$.post(logic_urls.getMarkByStudentId,vd,
+				function(data){
+					var json = TX.toJson(data);
+					console.log(json);
+					if(json.status == 1){
+						vm.mark_list = [];
+						for(var i=0;i<json.data.length;i++){
+							vm.mark_list.push(json.data[i]);
+						}
+						vm.setCourseList(1,vm.course_list);
+						if(vm.mark_list.length > 0 && vm.search_key == ""){
+							vm.search_key = vm.mark_list[0]['studentName'];
+						}
+					}else{
+						TX.msg(json.msg,{time:3000});
+						vm.resetItem();
+					}
+				}
+			);
+		},
+		resetCourse:function(){
+			for(var i=0;i<vm.course_list.length;i++){
+				vm.course_list[i]['score'] = 0;
+			}
+		},
+		search:function(str){
+			$.post(logic_urls.searchStudent,{studentName:str},
+				function(data){
+					var json = TX.toJson(data);
+					console.log(json);
+					if(json.status == 1){
+						var arr = json.data;
+						vm.search_result = [];
+						for(var i=0;i<arr.length;i++){
+							vm.search_result.push(arr[i]);
+						}						
+					}else{
+						TX.msg(json.msg,{time:3000});
+						vm.search_result = [];
+					}
+				}
+			);
+		},
+		listStudent:function(id){
+			if(id <= 0){
+				vm.stu_list = [];
+				return false;
+			}
+			$.post(logic_urls.listStudent,{classId:id},
+				function(data){
+					var json = TX.toJson(data);
+					console.log(json);
+					if(json.status == 1){
+						var tmp = json.data;
+						vm.stu_list = [];
+						for(var i=0;i<tmp.length;i++){
+							vm.stu_list.push(tmp[i]);
+						}
+					}else{
+
+					}
+				}
+			);
+		},
+		getData:function(){
+			var asr = [];
+			for(var i=0;i<vm.course_list.length;i++){
+				if(vm.course_list[i]['checked']){
+					var tmp = {
+						studentId:vm.studentId,
+						courseId:vm.course_list[i]['courseId'],
+						score:vm.course_list[i]['score'],
+						markGroup:vm.group,
+						markId:vm.course_list[i]['markId']
+					};
+					asr.push(tmp);
+				}
+			}
+			return asr;
+		},
+		formatData:function(data){
+			var tmp = {};
+			for(var i=0;i<data.length;i++){
+				for(var k in data[i]){
+					var keys = "key" + i + "_" + k;
+					tmp[keys] = data[i][k];
+				}
+			}
+			return tmp
+		},
+		selectName:function(el){
+			vm.search_invi = false;
+			vm.search_key = el.proName + "→" + el.className + "→" + el.studentName;
+			vm.studentId = el.studentId;
+			vm.search_result = [];			
+		},
+		checkStudent:function(el){
+			vm.model = 0;
+			vm.search_key = el.studentName;
+			vm.studentId = el.studentId;
+			if(vm.studentId > 0){
+				if(vm.group <= 0){
+					TX.msg("必须提供学生ID和成绩分组",{time:3000});
+					return;
+				}else{
+					vm.getMark();
+				}
+			}
+		},
+		nameChaged:function(){
+			vm.model = 1;
+		},
+		setCourseList:function(md,arr){
+			vm.course_list = [];
+			if(md == 0){
+				for(var i=0;i<arr.length;i++){
+					arr[i]['checked'] = false;
+					arr[i]['score'] = 0;
+					arr[i]['markId'] = 0;
+					vm.course_list.push(arr[i]);
+				}
+			}else{
+				if(vm.mark_list.length > 0){
+					for(var i=0;i<arr.length;i++){
+						for(var k=0;k<vm.mark_list.length;k++){
+							arr[i]['checked'] = false;
+							arr[i]['score'] = 0;
+							arr[i]['markId'] = 0;
+							if(arr[i]['courseId'] == vm.mark_list[k]['courseId']){
+								arr[i]['checked'] = true;
+								arr[i]['score'] = vm.mark_list[k]['score'];
+								arr[i]['markId'] = vm.mark_list[k]['markId'];
+								break;
+							}
+						}
+						vm.course_list.push(arr[i]);
+					}
+				}else{
+					for(var i=0;i<arr.length;i++){
+						arr[i]['score'] = 0;
+						arr[i]['markId'] = 0;
+						vm.course_list.push(arr[i]);
+					}
+				}
+			}
+		},
+		resetItem:function(){
+			vm.studentId = 0;
+			vm.dataFlag = 1;
+			vm.mark_list = [];
+			vm.setCourseList(1,vm.course_list);
+		},
+		toAdd:function(){
+			vm.resetItem();
+		},
+		toSave:function(){
+			var vd = vm.getData();
+			vd = vm.formatData(vd);
+			vm.saveMark(vd);
+		},
+		saveMark:function(arr){
+			if(vm.studentId <= 0){
+				vm.err.msg = "学生ID错误";
+				vm.err.err = true;
+				return;
+			}
+			TX.msg('努力加载中...',{time:30000});
+			$.post(logic_urls.saveMark,arr,
+				function(data){
+					var json = TX.toJson(data);
+					console.log(json);
+					if(json.status == 1){
+						layer.closeAll();
+						
+						
+						//vm.returnList();
+						avalon.scan();
+					}else{
+						TX.msg(json.msg,{time:5000});
+					}
+				}
+			);
+		},
+		returnList:function(){
+			if(vm.backUri != ""){
+				window.location.href = vm.backUri;
+			}else{
+				window.location.href = vm.returnUri;
+			}
+		},
+		precheck:function(){
+
+		}
+	});
+	vm.$watch("search_key",function(a){
+		if(a != "" && vm.search_invi && vm.model == 1){
+			vm.search(a);
+		}else{
+			vm.search_result = [];
+		}
+		vm.search_invi = true;
+	});
+	vm.$watch("catchitem.proId",function(a,b){
+		if(a != b && a > 0){
+			vm.class_arr = [];
+			for(var i=0;i<vm.class_list.length;i++){
+				if(a == vm.class_list[i]['proId']){
+					vm.class_arr.push(vm.class_list[i]);
+				}
+			}
+		}
+	});
+	vm.$watch("catchitem.classId",function(a,b){
+		if(a != b && a > 0){
+			vm.listStudent(a);
+		}
+	});
+	vm.load();
+});
+</script>
+</body>
+</html>

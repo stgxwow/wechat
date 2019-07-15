@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>盛邦升华</title>
+	<link rel="stylesheet" href="__STATIC__/bootstrap/css/bootstrap.min.css" type="text/css" />
+	<link rel="stylesheet" href="__STATIC__/layui/css/layui.css" type="text/css" />
+	<link rel="stylesheet" href="__STATIC__/css/font-awesome.css" type="text/css" />
+	<script src="__STATIC__/js/jquery.min.js"></script>
+	<link rel="stylesheet" href="__STATIC__/css/skins/skin-blue.min.css"type="text/css"/>
+	<link rel="stylesheet" href="__STATIC__/css/index.css" type="text/css"/>
+	<link href="__STATIC__/css/mcommon.css?v=2.0.6_180726" rel="stylesheet" type="text/css" />
+</head>
+<body ms-controller="sub" class="hold-transition skin-blue sidebar-mini" style="overflow-y: hidden;display:none;background:rgb(230, 247, 255);" ms-visible="display">
+	<div width="100%" border="0" class="layui-row">
+		<div class="layui-col-md12">
+			<div class="wst-total wst-summary" style="background-color:#fff;">
+				<div class="wst-summary-head  layui-col-md12">
+					<span class="content">信息统计</span>
+				</div>
+				<div class="layui-col-md4" style="height:auto;overflow:hidden;" ms-repeat-el="item_list">
+					<div class="wst-summary-content">
+						<div class="img">
+							<img ms-attr-src="el.url">
+						</div>
+						<div class="data">
+							<p class="data-top" style="color: #73c734;" ms-text="el.sum">0</p>
+							<div class="data-bottom" ms-text="el.name"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+			<div class="wst-total wst-summary" style="background-color:#fff;">
+				<div class="wst-summary-head  layui-col-md12">
+					<span class="content">系统信息</span>
+				</div>
+				<div class="layui-col-md4" style="height:auto;overflow:hidden;height:300px;">
+					<div class="wst-summary-content" style="display:none;">
+						<div class="img">
+							<img src="">
+						</div>
+						<div class="data">
+							<p class="data-top" style="color: #73c734;"></p>
+							<div class="data-bottom"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+
+<script src="__STATIC__/js/layer/layer.js"></script>
+<script src="__STATIC__/js/avalon.js"></script>
+<script src="__STATIC__/js/jquery.cookie.min.js"></script>
+<script src="__STATIC__/js/jQuery.md5.js"></script>
+<script src="__STATIC__/js/logic.js"></script>
+<script src="__STATIC__/js/validator.js"></script>
+<script src="__STATIC__/js/common.js"></script>
+<script>
+jQuery(document).ready(function(){
+
+	avalon.config({
+		interpolate : ["(|","|)"]
+	});
+
+	var vm = avalon.define({
+		$id:"sub",
+		menu:[],
+		display:true,
+		item_list:[],
+		load:function(){
+			TX.msg('努力加载中...',{time:30000});
+			$.post(logic_urls.adminLoading,{},
+				function(data){
+					var json = TX.toJson(data);
+					if(json.status == 1){
+						layer.closeAll();
+						var menu = json.data.menu_list;
+						for(var i=0;i<menu.length;i++){
+							menu[i].select = false;
+						}
+						vm.menu = menu;
+						vm.item_list = json.item_list;
+						avalon.scan();
+					}else{
+						TX.msg(json.msg,{time:5000});
+						avalon.scan();
+					}
+
+				}
+			);
+		}
+	});
+	vm.load();
+});
+</script>
+</body>
+</html>

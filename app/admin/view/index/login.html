@@ -1,0 +1,108 @@
+{extend name="index/base" /}
+{block name="meta"}{/block}
+{block name="title"}{/block}
+{block name="css"}
+<link rel="stylesheet" href="/public/static/css/font-awesome.css">
+{/block}
+{block name="main"}
+
+{/block}
+{block name="common_js"}{/block}
+{block name="header"}{include file="index/header" /}{/block}
+{block name="main"}
+	<div class="form-box">
+		<input type="text" class="login-item" placeholder="用户名" style="height:30px;" ms-duplex="userPwd" />
+		<input type="password" class="login-item" placeholder="密码" style="height:30px;" ms-duplex="userPwd" />
+		<button id="submit" style="width:100px;height:40px;background-color:#44B549;color:white;border:1px solid #44B549;border-radius:5px;margin-top:30px;" ms-click="signin">登  录</button>
+	</div>
+{/block}
+{block name="footer"}{include file="index/footer" /}{/block}
+{block name="js"}
+<script src="__STATIC__/js/jquery.min.js"></script>
+	<script src="__STATIC__/js/layer/layer.js"></script>
+	<script src="__STATIC__/js/avalon.js"></script>
+	<script src="__STATIC__/js/common.js"></script>
+	<script src="__STATIC__/js/jQuery.md5.js"></script>
+	<script src="__STATIC__/js/jquery.cookie.min.js"></script>
+	<script src="__STATIC__/js/logic.js"></script>
+	<script src="__STATIC__/js/validator.js"></script>
+	<script>
+		jQuery(document).ready(function(){
+			avalon.config({
+	          interpolate : ["(|","|)"]
+	        });
+
+	        var vm = avalon.define({
+	        	$id:'view',
+	        	userName:'',
+	        	userPwd:'',
+	        	userPower:{},
+	        	error:false,
+	        	msg:'',
+	        	load:function(){
+	        		avalon.scan();
+	        	},
+	        	signin:function(){
+	        		var pd = {
+	        			houseId:vm.houseId,
+	        			userName:vm.userName,
+	        			userPwd:$.md5(vm.userPwd + $.md5(vm.userPwd))
+	        		};
+	        		vm.preCheck();
+	        		if(vm.error){
+	        			TX.msg(vm.msg,{icon:2});
+	        			return;
+	        		}
+	        		$.post(logic_urls.login,pd,
+	        			function(data){
+	        				var json = TX.toJson(data);
+	        				console.log(json);
+	        				if(json.status == 1){
+	        					json.data.is_sign_in = true;
+	        					logic_user.onSignin(json.data);
+	        					logic_house.houseId = json.config['houseId'];
+	        					logic_house.save();
+	        					window.location.href="{:Url('home/index/index')}";
+	        				}else{
+	        					TX.msg(json.msg,{icon:1,time:2000});
+	        				}
+	        			}
+	        		);
+	        	},
+	        	preCheck:function(){
+	        		vm.error = false;
+	        		vm.msg = validator.checkNumber(vm.houseId,'磅房选择');
+	        		if(vm.msg != ''){
+	        			vm.error = true;
+	        			return;
+	        		}
+	        		vm.msg = validator.checkText(vm.userName,1,20,'用户名');
+	        		if(vm.msg != ''){
+	        			vm.error = true;
+	        			return;
+	        		}
+	        		vm.msg = validator.checkPassword(vm.userPwd,'密码');
+	        		if(vm.msg != ""){
+	        			vm.error = true;
+	        			return;
+	        		}
+	        	}
+	        });
+	        vm.load();
+
+	        $('body').keypress(function(e){
+				if(e.which == 13){
+					vm.signin();
+				}
+			});
+		});
+		
+		
+
+	</script>
+	<!--[if lt IE 9]>
+	    <script src="__STATIC__/js/respond.js"></script>
+	    <script src="__STATIC__/js/html5shiv.js"></script>
+	    <script src="__STATIC__/js/placeholder-IE-fixes.js"></script>
+	<![endif]-->
+{/block}

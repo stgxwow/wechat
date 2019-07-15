@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body ms-controller="test">
+	<div style="width:800px;margin:0 auto;padding-top:50px;overflow:hidden;">
+		<ul>
+			<li ms-for="(idx,el) in @list">
+				<label ms-for="(ipx,sl) in el.sub">
+					<input type="checkbox" ms-duplex-checked="@sl.checked" data-duplex-changed="@selectAll($event)">
+				</label>
+			</li>
+		</ul>
+	</div>
+
+<script src="__STATIC__/js/jquery.min.js"></script>
+<script src="__STATIC__/js/avalon2.2.8.js"></script>
+<script>
+jQuery(document).ready(function(){
+
+	var vm = avalon.define({
+		$id:"test",
+		list:[],
+		load:function(){
+			for(var i=0;i<5;i++){
+				var tmp = [];
+				for(var k=0;k<5;k++){
+					tmp.push({checked:false});
+				}
+				var smp = {id:1,sub:tmp};
+				vm.list.push(smp);
+			}
+			vm.list[0]['sub'][0]['checked'] = true;
+			console.log(vm.list);
+		},
+		selectAll:function(e){
+			var checked = e.target.checked;
+			console.log(vm.list);
+		}
+	});
+	vm.load();
+
+});
+</script>
+</body>
+</html>
