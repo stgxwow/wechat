@@ -1,0 +1,18 @@
+{extend name="index/base" /}
+{block name="meta"}{/block}
+{block name="title"}{/block}
+{block name="css"}
+	<link rel="stylesheet" href="/public/static/bootstrap/css/bootstrap.css">
+	<link href="__STATIC__/css/common.css" rel="stylesheet">
+	<link href="__STATIC__/css/admin.css" rel="stylesheet">
+
+{/block}
+{block name="common_js"}
+	<script src="/public/static/js/jquery.min.js"></script>
+	<script src="/public/static/bootstrap/js/bootstrap.min.js"></script>
+{/block}
+{block name="header"}{include file="index/header" /}{/block}
+{block name="main"}
+{/block}
+{block name="footer"}{include file="index/footer" /}{/block}
+{block name="js"}{/block}

@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>课程列表</title>
+	<link rel="stylesheet" href="__STATIC__/bootstrap/css/bootstrap.min.css" type="text/css" />
+	<link rel="stylesheet" href="__STATIC__/layui/css/layui.css" type="text/css" />
+	<link rel="stylesheet" href="__STATIC__/css/font-awesome.css" type="text/css" />
+	<script src="__STATIC__/js/jquery.min.js"></script>
+	<link rel="stylesheet" href="__STATIC__/css/skins/skin-blue.min.css"type="text/css"/>
+	<link rel="stylesheet" href="__STATIC__/css/index.css" type="text/css"/>
+	<link href="__STATIC__/css/mcommon.css?v=2.0.6_180726" rel="stylesheet" type="text/css" />
+</head>
+<body ms-controller="sub" class="hold-transition skin-blue sidebar-mini" style="display:none;" ms-visible="display">
+	<div ms-visible="dis_model == 'list'">
+		<div class="alert alert-success alert-tips fade in">
+			<div class="head">
+				<i class="fa fa-lightbulb-o"></i>
+				操作说明
+			</div>
+			<ul class="body">
+				<li>该功能主要用于设置课程相关的信息，包括新增和编辑等操作,课程是与班级绑定的,每个班级都可以设置自己的课程,与其他班级无关。</li>
+			</ul>
+		</div>
+		<div class="wst-toolbar">
+			<select class="form-control" ms-duplex="search_key">
+				<option disabled selected value="">请选择班级名称</option>
+				<option ms-repeat-el="class_list" ms-attr-value="el.classId" ms-text="el.className"></option>
+			</select>
+			<select class="form-control" ms-duplex="groupId">
+				<option disabled selected value="0">请选择分组名称</option>
+				<option ms-repeat-el="group_list" ms-attr-value="el.groupId" ms-text="el.groupName"></option>
+			</select>
+			<button class="btn btn-primary" ms-click="search">查询</button>
+			<button class="btn btn-success f-right" ms-click="toAdd">
+				<i class="fa fa-plus"></i>
+				新增
+			</button>
+		</div>
+		<div class="wst-grid">
+			<div class="mmGrid" style="width: auto; height: 275px;">
+				<div class="mmg-headWrapper">
+					
+				</div>
+				<div class="mmg-bodyWrapper">
+					<div class="mmg mmg-body" style="border:1px solid #dedede;">
+						<table class="mmg-head tab-list" cellspacing="0" cellpadding="0" >
+							<thead style="border:0px;">
+								<tr style="height:40px;line-height:40px;border-bottom:1px solid #dedede;">
+									<th>序号</th>
+									<th>课程名称</th>
+									<th>课程状态</th>
+									<th>操作</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr cellspacing="0" ms-repeat-el="course_list">
+									<td class="col-td" ms-text="$index+1"></td>
+									<td class="col-td" ms-text="el.courseName"></td>
+									<td class="col-td">
+										<img ms-visible="el.dataFlag == 1" src="__STATIC__/img/enable.png" alt="">
+										<img ms-visible="el.dataFlag == 0" src="__STATIC__/img/disable.png" alt="">
+									</td>
+									<td class="col-td">
+										<button class="btn btn-blue pull-right-10" ms-click="toEdit(el)">
+											<i class="fa fa-pencil"></i>编辑
+										</button>
+										<button class="btn btn-red pull-right-10" ms-click="toDelete(el.courseId,0)">
+											<i class="fa fa-trash-o"></i>删除
+										</button>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div ms-visible="dis_model == 'edit' || dis_model == 'add'">
+		<div class="mmg mmg-body">
+			<table class="mmg-head wst-form wst-box-top top-tab" style="width:60%;margin:0 auto;" cellspacing="0" cellpadding="0" >
+				<tbody>
+					<tr style="padding-top:30px;">
+						<th width="150">课程名称<font color="red">*</font>：</th>
+						<td>
+							<input type="text" class="ipt" style="width:350px;" ms-duplex="item.courseName">
+						</td>
+					</tr>
+					<tr>
+						<th width="150">所属班级<font color="red">*</font>：</th>
+						<td>
+							<select class="form-control" ms-duplex="item.classId"style="width:350px;">
+								<option disabled selected value="">请选择所属班级</option>
+								<option ms-repeat-el="class_list" ms-attr-value="el.classId" ms-text="el.className"></option>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<th width="150">所属分组<font color="red">*</font>：</th>
+						<td>
+							<select class="form-control" ms-duplex="item.groupId"style="width:350px;">
+								<option disabled selected value="">请选择所属班级</option>
+								<option ms-repeat-el="group_list" ms-attr-value="el.groupId" ms-text="el.groupName"></option>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<th width="150">课程状态<font color="red">*</font>：</th>
+						<td>
+							<select class="ipt" style="width:350px;" ms-duplex="item.dataFlag">
+								<option value="1">有效</option>
+								<option value="0">无效</option>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<th width="150">&nbsp;</th>
+						<td style="color:red;text-align:center;" ms-visible="err.err" ms-text="err.msg"></td>
+					</tr>
+					<tr>
+						<th width="150">&nbsp;</th>
+						<td>	
+							<button class="btn btn-green pull-reight-50 pull-left-100" ms-click="toSave">
+								<i class="fa fa-check"></i>保存
+							</button>
+							<button class="btn btn-red" ms-click="returnList">
+								<i class="fa fa-angle-double-left"></i>返回
+							</button>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+	
+<script src="__STATIC__/js/layer/layer.js"></script>
+<script src="__STATIC__/layui/layui.js"></script>
+<script src="__STATIC__/js/avalon.js"></script>
+<script src="__STATIC__/js/jquery.cookie.min.js"></script>
+<script src="__STATIC__/js/jQuery.md5.js"></script>
+<script src="__STATIC__/js/logic.js"></script>
+<script src="__STATIC__/js/validator.js"></script>
+<script src="__STATIC__/js/common.js"></script>
+<script>
+jQuery(document).ready(function(){
+	avalon.config({
+		interpolate : ["(|","|)"]
+	});
+
+	layui.use(['form'], function(){});
+	TX.setPageBox();
+	var vm = avalon.define({
+		$id:"sub",
+		display:true,
+		dis_model:"list",
+		course_list:[],
+		class_list:[],
+		allgroup_list:[],
+		group_list:[],
+		groupId:0,
+		search_key:'',
+		err:{err:false,msg:""},
+		item:{
+			courseId:0,
+			courseName:'',
+			classId:'',
+			dataFlag:1,
+			groupId:0
+		},
+		load:function(md){
+			TX.msg('努力加载中...',{time:30000});
+			var vd = {classId:vm.search_key};
+			if(md > 0){
+				vd = {classId:vm.search_key,groupId:vm.groupId};
+			}
+			$.post(logic_urls.adminCourse,vd,
+				function(data){
+					var json = TX.toJson(data);
+					console.log(json);
+					if(json.status == 1){
+						layer.closeAll();
+						if(json.model == 1){
+							vm.allgroup_list = json.group_list;
+						}
+						vm.course_list = json.data;
+						vm.class_list = json.class_list;
+						avalon.scan();
+					}else{
+						TX.msg(json.msg,{time:5000});
+					}
+				}
+			);
+		},
+		search:function(){
+			if(vm.groupId <= 0 || vm.classId <= 0){
+				TX.msg('请选择班极和分成',{time:3000});
+				return;
+			}
+			vm.load(1);
+		},
+		resetItem:function(){
+			vm.item = {
+				courseId:0,
+				courseName:'',
+				classId:'',
+				dataFlag:1,
+				groupId:0
+			};
+		},
+		toAdd:function(){
+			vm.resetItem();
+			vm.item.classId = vm.search_key;
+			vm.item.groupId = vm.groupId;
+			vm.dis_model = "add";
+		},
+		toEdit:function(el){
+			vm.item = el.$model;
+			vm.dis_model = "edit";
+		},
+		toSave:function(){
+			var vd = vm.item.$model;
+			vm.saveCourse(vd);
+		},
+		saveCourse:function(arr){
+			vm.precheck(arr);
+			if(vm.err.err){
+				return;
+			}
+			TX.msg('努力加载中...',{time:30000});
+			$.post(logic_urls.saveCourse,arr,
+				function(data){
+					var json = TX.toJson(data);
+					if(json.status == 1){
+						layer.closeAll();
+						console.log(json);
+						vm.course_list = json.data;
+						vm.returnList();
+						avalon.scan();
+					}else{
+						TX.msg(json.msg,{time:5000});
+					}
+				}
+			);
+		},
+		toDelete:function(id){
+			layer.confirm("是否要删除",
+				{btn:["确定","取消"],
+					function(){
+						layer.closeAll();
+						return false;
+					}
+				},
+				function(){
+					layer.closeAll();
+					var vd = {
+						courseId:id
+					};
+					TX.msg("数据提交中......",{time:30000});
+					$.post(logic_urls.delCourse,vd,
+						function(data){
+							var json = TX.toJson(data);
+							if(json.status == 1){
+								layer.closeAll();
+								for(var i=0;i<vm.course_list.length;i++){
+									if(vm.course_list[i]['courseId'] == json.data){
+										vm.course_list.splice(i,1);
+										break;
+									}
+								}
+								avalon.scan();
+							}else{
+								TX.msg(json.msg,{time:3000});
+							}
+						}
+					);
+				},
+				function(){
+					layer.closeAll();
+					return false;
+				}
+			);
+		},
+		returnList:function(){
+			vm.resetItem();
+			vm.dis_model = "list";
+			avalon.scan();
+		},
+		precheck:function(arr){
+			vm.err.err = false;
+			vm.err.msg = '';
+			vm.err.msg = validator.checkText(arr.courseName,1,30,"课程名称");
+			if(vm.err.msg != ''){
+				vm.err.err = true;
+				return;
+			}
+			vm.err.msg = validator.checkNumber(arr.dataFlag,"课程状态");
+			if(vm.err.msg != ''){
+				vm.err.err = true;
+				return;
+			}
+			vm.err.msg = validator.checkNumber(arr.classId,"所属班级");
+			if(vm.err.msg != ''){
+				vm.err.err = true;
+				return;
+			}
+			if(vm.dis_model == "edit"){
+				vm.err.msg = validator.checkNumber(arr.courseId,"课程ID");
+				if(vm.err.msg != ''){
+					vm.err.err = true;
+					return;
+				}
+			}
+		}
+
+	});
+	vm.load();
+	vm.$watch('search_key',function(a,b){
+		if(a != b && a> 0){
+			vm.group_list = [];
+			for(var i=0;i<vm.allgroup_list.length;i++){
+				if(vm.allgroup_list[i]['classId'] == a){
+					vm.group_list.push(vm.allgroup_list[i]);
+				}
+			}
+		}
+	});
+});
+</script>
+</body>
+</html>

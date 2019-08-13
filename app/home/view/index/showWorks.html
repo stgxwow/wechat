@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>学员作品展示</title>
+    <link rel="stylesheet" href="__STATIC__/bootstrap/css/bootstrap.min.css" type="text/css" />
+	<link rel="stylesheet" href="__STATIC__/layui/css/layui.css" type="text/css" />
+	<link rel="stylesheet" href="__STATIC__/css/font-awesome.css" type="text/css" />
+	<script src="__STATIC__/js/jquery.min.js"></script>
+	<link rel="stylesheet" href="__STATIC__/css/skins/skin-blue.min.css"type="text/css"/>
+	<link rel="stylesheet" href="__STATIC__/css/index.css" type="text/css"/>
+	<link href="__STATIC__/css/mcommon.css?v=2.0.6_180726" rel="stylesheet" type="text/css" />
+	<link rel="stylesheet" href="__STATIC__/css/iconfont.css">
+</head>
+<body ms-controller="sub" class="hold-transition skin-blue sidebar-mini" style="display:none;" ms-visible="display">
+	<div ms-visible="dis_model == 'list'">
+		<div class="alert alert-success alert-tips fade in">
+			<div class="head">
+				<i class="fa fa-lightbulb-o"></i>
+				操作说明
+			</div>
+			<ul class="body">
+				<li>该功能主要用于查询及编辑学员的作品,在查询前需要先选择好项目名称、班级名称和成绩分组,然后点击查询按钮进行查询,另外需要注意的是,在进行新增或编辑时,首选要进行查询,否则无法获取学生列表。</li>
+			</ul>
+		</div>
+		<div class="wst-toolbar">
+			<select class="form-control" ms-duplex="@proId">
+				<option disabled selected value="">请选择项目名称</option>
+				<option ms-for="el in @program_list" ms-attr="{value:el.proId}" ms-text="el.proName"></option>
+			</select>
+			<select class="form-control" ms-duplex="@classId">
+				<option value="">请选择班级名称</option>
+				<option ms-for="el in @class_arr" ms-attr="{value:el.classId}" ms-text="el.className"></option>
+			</select>
+			<select class="form-control" ms-duplex="@groupId" ms-attr-disabled="@update > 0">
+				<option disabled selected value="0">请选择成绩分组</option>
+				<option ms-for="el in @group_list" ms-attr="{value:el.groupId}" ms-text="el.groupName"></option>
+			</select>
+			<button class="btn btn-primary" ms-click="load">查询</button>
+			<!-- <button class="btn btn-success margin-left-20" ms-click="toUpload">
+				<i class="fa fa-plus"></i>
+				批量导入成绩
+			</button>
+			<button class="btn btn-success" style="margin-left:20px;" ms-click="exportData">
+				<i class="fa fa-plus"></i>
+				导出到EXCEL
+			</button>
+			<button class="btn btn-success margin-left-20" ms-click="toDownload">
+				<i class="fa fa-plus"></i>
+				下载导入模板
+			</button> -->
+			<button class="btn btn-success f-right" ms-click="toAdd">
+				<i class="fa fa-plus"></i>
+				新增
+			</button>
+		</div>
+		<div class="wst-grid">
+			<div class="mmGrid" style="width: auto; height: 275px;">
+				<div class="mmg-headWrapper">
+					
+				</div>
+				<div class="mmg-bodyWrapper">
+					<div class="mmg mmg-body" style="border:1px solid #dedede;">
+						<table class="mmg-head tab-list" cellspacing="0" cellpadding="0" >
+							<thead style="border:0px;">
+								<tr style="height:40px;line-height:40px;border-bottom:1px solid #dedede;">
+									<th>学号</th>
+									<th>姓名</th>
+									<th>作品截图</th>
+									<th>答辩视频</th>
+									<th>操作</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr cellspacing="0" ms-for="(idx,el) in student_list">
+									<td class="col-td" ms-text="el.studentNumber"></td>
+									<td class="col-td" ms-text="el.studentName"></td>
+									<td>
+                                        <div class="show-img-box" ms-for="(imgid,img) in el.img_list">
+                                            <img ms-attr="{src:img.src}" alt="">
+                                            <span style="text-align:center;">(|img.title|)</span>
+                                        </div>
+                                    </td>
+									<td>
+                                        <button ms-visible="!el.showVedio" ms-click="getVideoUrl(el)">获取视频地址</button>
+                                        <video class="show-video" controls="controls" ms-for="(vid,video) in el.true_list" class="show-video" ms-attr="{src:video}"></video>
+                                    </td>
+									<td class="col-td">
+										<button class="btn btn-blue pull-right-10" ms-click="toEdit(el)">
+											<i class="fa fa-pencil"></i>编辑
+                                        </button>
+                                        <button class="btn btn-red pull-right-10" ms-click="toDelInfo(el.infoId)">
+                                            <i class="fa fa-pencil"></i>删除
+                                        </button>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+    </div>
+    <div ms-visible="dis_model == 'edit' || dis_model == 'add'">
+        <div class="mmg mmg-body">
+            <table class="mmg-head wst-form wst-box-top top-tab" style="width:60%;margin:0 auto;" cellspacing="0" cellpadding="0" >
+                <tbody>
+                    <tr style="padding-top:30px;">
+                        <th width="150">学生姓名:<font color="red">*</font>：</th>
+                        <td>
+                            <select ms-duplex="@item.studentId" style="width:600px;">
+                                <option disabled value="">请选择学生</option>
+                                <option ms-for="(idx,el) in student_arr" ms-attr="{value:el.studentId,disabled:dis_model == 'edit'}">(|el.studentName|)</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th width="150">作品分组:<font color="red"></font>：</th>
+                        <td>
+                            <select ms-duplex="@item.groupId" style="width:600px;">
+                                <option value="0">请选择分组</option>
+                                <option ms-for="(gid,el) in group_list" ms-attr="{value:el.groupId}">(|el.groupName|)</option>
+                            </select>
+                            
+                        </td>
+                    </tr>
+                    <tr>
+                        <th width="150">图片展示<font color="red"></font>：</th>
+                        <td>
+                            <p ms-for="(imd,img) in item.img_list" style="height:50px;line-height:50px;">
+                                <input type="text" class="ipt" style="width:200px;" ms-duplex="img.title" placeholder="请填写说明文字">
+                                <input type="text" class="ipt" style="width:300px;" ms-duplex="img.src" placeholder="请填写图片地址">
+                                <button class="btn btn-red margin-left-20" ms-click="delImgItem(imd)">删除</button>
+                            </p>
+                            <p style="text-align:center;display:table-cell;vertical-align:middle;">
+                                <button class="btn btn-green" ms-click="toUploadImg">上传图片</button>
+                            </p>
+                        </td>
+                                
+                    </tr>
+                    <tr>
+                        <th width="150">视频地址<font color="red"></font>：</th>
+                        <td>
+                            <p ms-for="(vid,videos) in item.vedio_list" style="height:50px;line-height:50px;">
+                                <input type="text" class="ipt" style="width:500px;" ms-duplex="videos" placeholder="请填写视频地址">
+                                <button class="btn btn-red margin-left-20" ms-click="delvideoItem(vid)">删除</button>
+                            </p>
+                            <p style="text-align:center;display:table-cell;vertical-align:middle;">
+                                <button style="display:block;" class="btn btn-green" ms-click="addVideoItem">添加视频</button>
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th width="150">项目状态<font color="red">*</font>：</th>
+                        <td>
+                            <select class="ipt" style="width:500px;" ms-duplex="item.dataFlag">
+                                <option value="1">有效</option>
+                                <option value="0">无效</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th width="150">&nbsp;</th>
+                        <td style="text-align:center;color:red;" ms-visible="err.err" ms-text="err.msg"></td>
+                    </tr>
+                    <tr>
+                        <th width="150">&nbsp;</th>
+                        <td>	
+                            <button class="btn btn-green pull-reight-50 pull-left-100" ms-click="toSave">
+                                <i class="fa fa-check"></i>保存
+                            </button>
+                            <button class="btn btn-red" ms-click="returnList">
+                                <i class="fa fa-angle-double-left"></i>返回
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <input type="file" name="works_img" id="files1" multiple="multiple" style="display:none;">
+    <script src="__STATIC__/js/layer/layer.js"></script>
+    <script src="__STATIC__/layui/layui.js"></script>
+    <script src="__STATIC__/js/avalon2.2.8.js"></script>
+    <script src="__STATIC__/js/jquery.cookie.min.js"></script>
+    <script src="__STATIC__/js/jQuery.md5.js"></script>
+    <script src="__STATIC__/js/logic.js"></script>
+    <script src="__STATIC__/js/validator.js"></script>
+    <script src="__STATIC__/js/common.js"></script>
+    <script>
+        jQuery(document).ready(function(){
+            avalon.config({
+                interpolate : ["(|","|)"]
+            });
+
+            layui.use(['form'], function(){});
+            TX.setPageBox();
+            var vm = avalon.define({
+                $id:"sub",
+                display:true,
+                dis_model:'list',
+                proId:0,
+                classId:0,
+                groupId:0,
+                student_list:[],
+                student_arr:[],
+                program_list:[],
+                group_list:[],
+                allgroup_list:[],
+                class_list:[],
+                class_arr:[],
+                item:{
+                    infoId:0,
+                    studentId:0,
+                    groupId:0,
+                    img_list:[],
+                    vedio_list:[],
+                    dataFlag:1
+                },
+                load:function(){
+                    TX.msg('努力加载中...',{time:30000});
+                    var vd = {
+                        classId:vm.classId,
+                        groupId:vm.groupId
+                    };
+                    $.post(logic_urls.adminShowWorks,vd,
+                        function(data){
+                            layer.closeAll();
+                            var json = TX.toJson(data);
+                            console.log(json);
+                            if(json.status == 1){
+                                vm.program_list = json.program_list;
+                                vm.class_list = json.class_list;
+                                vm.allgroup_list = json.group_list;
+                                vm.student_list = json.data;
+                                vm.student_arr = json.student_list;
+                                for(var i=0;i<vm.student_list.length;i++){
+                                    vm.student_list[i]['true_list'] = [];
+                                }
+                            }else{
+                                TX.msg('获取信息失败,代码为:' + json.msg,{time:3000});
+                            }
+                        }
+                    );
+                },
+                resetItem:function(){
+                    vm.item = {
+                        infoId:0,
+                        studentId:0,
+                        groupId:0,
+                        img_list:[],
+                        vedio_list:[],
+                        dataFlag:1
+                    }
+                },
+                toEdit:function(el){
+                    vm.item = {
+                        infoId:el.infoId,
+                        studentId:el.studentId,
+                        groupId:el.groupId,
+                        img_list:[],
+                        vedio_list:[],
+                        dataFlag:el.dataFlag
+                    };
+                    for(var i=0;i<el.img_list.length;i++){
+                        vm.item.img_list.push({src:el.img_list[i]['src'],title:el.img_list[i]['title']});
+                    }
+                    for(var k in el.vedio_list){
+                        vm.item.vedio_list.push(el.vedio_list[k]);
+                    }
+                    console.log(vm.item);
+                    vm.dis_model = 'edit';
+                },
+                toAdd:function(){
+                    if(vm.classId <= 0 || vm.groupId <= 0){
+                        TX.msg('请选选择班级和分组信息',{time:3000});
+                        return;
+                    }
+                    vm.resetItem();
+                    vm.item.groupId = vm.groupId;
+                    vm.item.studentId = 0;
+                    vm.dis_model = 'add';
+                },
+                toDelInfo:function(id){
+                    if(id <= 0){
+                        TX.msg('请正确选择要删除的记录');
+                        return;
+                    }
+                    layer.confirm("删除后将不可恢复,确定要删除吗?",
+                        {btn:["确定","取消"],
+                            function(){
+                                layer.closeAll();
+                                return false;
+                            }
+                        },
+                        function(){
+                            layer.closeAll();
+                            var vd = {
+                                infoId:id
+                            };
+                            console.log(vd);
+                            TX.msg("数据提交中......",{time:30000});
+                            $.post(logic_urls.delShowWorks,vd,
+                                function(data){
+                                    var json = TX.toJson(data);
+                                    console.log(json);
+                                    if(json.status == 1){
+                                        layer.closeAll();
+                                        for(var i=0;i<vm.student_list.length;i++){
+                                            if(vm.student_list[i]['infoId'] == json.data){
+                                                vm.student_list.splice(i,1);
+                                                break;
+                                            }
+                                        }
+                                        avalon.scan();
+                                    }else{
+                                        TX.msg(json.msg,{time:3000});
+                                    }
+                                }
+                            )
+                        },
+                        function(){
+                            layer.closeAll();
+                            return false;
+                        }
+                    );
+                },
+                getInput:function(){
+                    var img = vm.item.img_list;
+                    var img_arr = [];
+                    var img_str = '';
+                    for(var i=0;i<img.length;i++){
+                        if(img[i]['src'].length > 0 && img[i]['title'].length > 0){
+                            img_arr.push(img[i]['src'] + '^' + img[i]['title']);
+                        }else{
+                            if(img[i]['title'].length == 0){
+                                TX.msg('请为第' + (i+1) + '张图片填写说明文字',{time:3000});
+                                return false;
+                            }
+                        }
+                    }
+                    console.log(img_arr);
+                    if(img_arr.length > 0){
+                        img_str = img_arr.join('|');
+                    }
+                    if(img_str.length == 0){
+                        return false;
+                    }
+                    var video = vm.item.vedio_list;
+                    if(video.length == 0){
+                        TX.msg('请输入视频地址',{time:3000});
+                        return false;
+                    }
+                    var video_arr = [];
+                    var video_str = '';
+                    for(var i=0;i<video.length;i++){
+                        if(video[i].length > 0){
+                            video_arr.push(video[i])
+                        }
+                    }
+                    if(video_arr.length == 0){
+                        TX.msg('请输入视频地址',{time:3000});
+                        return false;
+                    }
+                    video_str = video_arr.join(',');
+                    var vd = {
+                        infoId:vm.item.infoId,
+                        studentId:vm.item.studentId,
+                        groupId:vm.item.groupId,
+                        imgList:img_str,
+                        vedioList:video_str,
+                        dataFlag:vm.item.dataFlag
+                    };
+                    return vd;
+                },
+                toSave:function(){
+                    var vd = vm.getInput();
+                    if(!vd){
+                        return;
+                    }
+                    console.log(vd);
+                    TX.msg('数据传输中,请稍后...',{time:3000});
+                    $.post(logic_urls.saveShowWorks,vd,
+                        function(data){
+                            layer.closeAll();
+                            var json = TX.toJson(data);
+                            console.log(json);
+                            if(json.status == 1){
+                                TX.msg('保存数据成功',{time:3000});
+                                if(vm.item.infoId > 0){
+                                    for(var i=0;i<vm.student_list.length;i++){
+                                        var xd = vm.student_list[i];
+                                        if(xd['infoId'] == json.data['infoId']){
+                                            vm.student_list.splice(i,1,vm.setData(json.data));
+                                            break;
+                                        }
+                                    }
+                                }else{
+                                    vm.student_list.splice(0,0,vm.setData(json.data));
+                                }
+                                vm.dis_model = 'list';
+                            }else{
+                                TX.msg('保存数据失败,代码为:' + json.msg,{time:3000});
+                            }
+                        }                    
+                    );
+                },
+                setData:function(arr){
+                    var data = {};
+                    data.infoId = arr['infoId'];
+                    data.studentId = arr['studentId'];
+                    data.studentName = "";
+                    for(var i=0;i<vm.student_arr.length;i++){
+                        if(data.studentId == vm.student_arr[i]['studentId']){
+                            data.studentName = vm.student_arr[i]['studentName'];
+                            break;
+                        }
+                    }
+                    data['groupId'] = arr['groupId'];
+                    data['imgList'] = arr['imgList'];
+                    data['vedioList'] = arr['vedioList'];
+                    data['vedio_list'] = [];
+                    data['img_list'] = [];
+                    for(var i=0;i<vm.item.img_list.length;i++){
+                        var sd = vm.item.img_list[i];
+                        data['img_list'].push({title:sd['title'],src:sd['src']});
+                    }
+                    for(var i=0;i<vm.item.vedio_list.length;i++){
+                        var sd = vm.item.vedio_list[i];
+                        data['vedio_list'].push(sd);
+                    }
+                    data.flag = arr['dataFlag'];
+                    console.log(data);
+                    return data;
+                },
+                returnList:function(){
+                    vm.resetItem();
+                    vm.dis_model = 'list';
+                },
+                getVideoUrl:function(el){
+                    if(el.infoId <= 0){
+                        TX.msg('ID错误',{time:3000});
+                        return;
+                    }
+                    TX.msg('数据传输中,请稍后...',{time:30000});
+                    $.post(logic_urls.getTrueUrl,{infoId:el.infoId},
+                        function(data){
+                            layer.closeAll();
+                            var json = TX.toJson(data);
+                            console.log(json);
+                            if(json.status == 1){
+                                var sd = json.data;
+                                var tmp = {};
+                                for(var i=0;i<vm.student_list.length;i++){
+                                    if(json['infoId'] == vm.student_list[i]['infoId']){
+                                        var info = vm.student_list[i];
+                                        tmp = {
+                                            infoId:info['infoId'],
+                                            studentId:info['studentId'],
+                                            studentName:info['studentName'],
+                                            imgList:info['imgList'],
+                                            groupId:info['groupId'],
+                                            showVedio:info['showVedio'],
+                                            vedioList:info['VedioList'],
+                                            img_list:info['img_list'],
+                                            vedio_list:!info['vedio_list'],
+                                            true_list:sd
+                                        }
+                                        vm.student_list.splice(i,1,tmp);
+                                        break;
+                                    }
+                                }
+                                console.log(vm.student_list);
+                            }else{
+                                TX.msg('获取视频失败,代码为:' + json.msg,{time:3000});
+                            }
+                        }
+                    );
+                },
+                toUploadImg:function(){
+                    $("#files1").click();
+                },
+                toUploadVideo:function(){
+                    $("#files2").click();
+                },
+                delImgItem:function(id){
+                    if(id<=0){
+                        return;
+                    }
+                    vm.item.img_list.splice(id,1);
+                },
+                addVideoItem:function(){
+                    vm.item.vedio_list.push('');
+                    console.log(vm.item);
+                },
+                delvideoItem:function(id){
+                    if(id <= 0){
+                        return;
+                    }
+                    vm.item.vedio_list.splice(id,1);
+                }
+            });
+            vm.$watch("proId",function(a,b){
+                console.log(a);
+                if(a != b && a > 0){
+                    vm.class_arr = [];
+                    for(var i=0;i<vm.class_list.length;i++){
+                        if(a == vm.class_list[i]['proId']){
+                            vm.class_arr.push(vm.class_list[i]);
+                        }
+                    }
+                }
+            });
+            vm.$watch("classId",function(a,b){
+                if(a != b && a > 0){
+                    vm.group_list = [];
+                    for(var i=0;i<vm.allgroup_list.length;i++){
+                        if(vm.allgroup_list[i]['classId'] == a){
+                            vm.group_list.push(vm.allgroup_list[i]);
+                        }
+                    }
+                }
+            });
+            vm.load();
+            $("#files1").change(function(e){
+                var that = this;
+                var f = new FormData();
+                for(var i=0;i<this.files.length;i++){
+                    f.append('file'+i,this.files[i]);
+                }
+                var urls = logic_urls.uploadMultipleFiles + '?dir=work_imgs&fileName=work_img';
+                console.log(urls);
+                $.ajax({
+                    url:urls,
+                    type: 'POST',
+                    cache: false,
+                    data: f,
+                    processData: false,
+                    contentType: false,
+                    success:function(data){
+                        var json = TX.toJson(data);
+                        console.log(json);
+                        if(json.status == 1){
+                            TX.msg('上传图片成功:',{time:3000,icon:3,skin: 'layer-ext-moon'});
+                            var vd = json.data;
+                            for(var i=0;i<vd.length;i++){
+                                vm.item.img_list.push({title:'',src:vd[i]});
+                            }
+                            avalon.scan();
+                        }else{
+                            TX.msg('上传图片失败,代码为' + json.msg,{time:3000,icon:3,skin: 'layer-ext-moon'});
+                            avalon.scan();
+                        }
+                    },
+                    complete:function(data){
+                        that.value = "";
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

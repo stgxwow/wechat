@@ -1,0 +1,47 @@
+*{
+    padding:0;
+    margin:0;
+}
+.container{
+    width:100%;
+    overflow:hidden;
+}
+.title{
+    width:100%;
+    text-align: center;
+    line-height:60px;
+}
+.show-text{
+    width:90%;
+    margin:0 auto;
+    font-size:1.2em;
+    line-height:2em;
+}
+.select-model{
+    display: block;
+    width:90%;
+    margin:0 auto;
+    margin-top:20px;
+    height:2em;
+    line-height:2em;
+    font-size:1.2em;
+    text-align:center;
+}
+.box{
+    width:90%;
+    margin:0 auto;
+    border-bottom:1px solid #dedede;
+    padding:20px 0px;;
+}
+.item-text{
+    display:inline-block;
+    height:40px;
+    line-height:40px;
+}
+.sound-btn{
+    display:inline-block;
+    width:35px;
+    height:30px;
+    margin-left:20px;
+    margin-top:10px;
+}

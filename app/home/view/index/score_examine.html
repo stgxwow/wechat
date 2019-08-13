@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>千分制审核</title>
+	<link rel="stylesheet" href="__STATIC__/bootstrap/css/bootstrap.min.css" type="text/css" />
+	<link rel="stylesheet" href="__STATIC__/layui/css/layui.css" type="text/css" />
+	<link rel="stylesheet" href="__STATIC__/css/font-awesome.css" type="text/css" />
+	<script src="__STATIC__/js/jquery.min.js"></script>
+	<link rel="stylesheet" href="__STATIC__/css/skins/skin-blue.min.css"type="text/css"/>
+	<link rel="stylesheet" href="__STATIC__/css/index.css" type="text/css"/>
+    <link href="__STATIC__/css/mcommon.css?v=2.0.6_180726" rel="stylesheet" type="text/css" />
+    <style>
+        .c-2{
+            width:2%;
+        }
+        .c-3{
+            width:3%;
+        }
+        .c-5{
+            width:5%;
+        }
+        .c-10{
+            width:10%;
+        }
+        .c-15{
+            width:15%;
+        }
+        .c-20{
+            width:20%;
+        }
+        .c-25{
+            width:25%;
+        }
+        .c-30{
+            width:30%;
+        }
+        .c-35{
+            width:35%;
+        }
+        .c-40{
+            width:40%;
+        }
+    </style>
+</head>
+<body ms-controller="sub" class="hold-transition skin-blue sidebar-mini" style="display:none;" ms-visible="display">
+	<div ms-visible="@dis_model == 'list'">
+		<div class="alert alert-success alert-tips fade in">
+			<div class="head">
+				<i class="fa fa-lightbulb-o"></i>
+				操作说明
+			</div>
+			<ul class="body">
+				<li>该功能主要用查看那些需要审核的千分制修改信息。</li>
+			</ul>
+		</div>
+		<div class="wst-toolbar">
+			<!-- <span class="btn"></span>
+			<button class="btn btn-success f-right" ms-click="toAdd" style="display:none;">
+				<i class="fa fa-plus"></i>
+				新增
+            </button> -->
+            <div style="margin:0;padding:0">
+                <span class="tabs" ms-class="@class.none" ms-click="changeTab('none')">未处理</span>
+                <span class="tabs" ms-class="@class.access" ms-click="changeTab('access')">同意</span>
+                <span class="tabs" ms-class="@class.deny" ms-click="changeTab('deny')">拒绝</span>
+            </div>
+		</div>
+		<div class="wst-grid">
+			<div class="mmGrid" style="width: auto; height: 275px;">
+				<div class="mmg-bodyWrapper">
+					<div class="mmg mmg-body" style="border:1px solid #dedede;">
+						<table class="mmg-head tab-list" cellspacing="0" cellpadding="0" ms-visible="tabs_item == 'none'">
+							<thead style="border:0px;">
+								<tr style="height:40px;line-height:40px;border-bottom:1px solid #dedede;">
+                                    <th class="c-2">序号</th>
+                                    <th class="c-5">发起人</th>
+									<th class="c-5">姓名</th>
+									<th class="c-20">原规则</th>
+                                    <th class="c-5">原说明</th>
+                                    <th class="c-5">原修改时间</th>
+                                    <th class="c-3">原分数</th>
+                                    <th class="c-20">修改后规则</th>
+                                    <th class="c-5">修改后说明</th>
+                                    <th class="c-5">修改后分数</th>
+                                    <th class="c-5">修改时间</th>
+                                    <th class="c-10">修改理由</th>
+									<th class="c-10">操作</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr cellspacing="0" ms-for="(idx,el) in score_none">
+									<td class="col-td" ms-text="idx+1"></td>
+									<td class="col-td" ms-text="el.nickName"></td>
+                                    <td class="col-td" ms-text="el.studentName"></td>
+                                    <td class="col-td" ms-text="el.sourceRule"></td>
+                                    <td class="col-td" ms-text="el.sourceMem"></td>
+                                    <td class="col-td" ms-text="el.sourceTimeDesc"></td>
+                                    <td class="col-td" ms-text="el.sourceScore"></td>
+                                    <td class="col-td" ms-text="el.targetRule"></td>
+                                    <td class="col-td" ms-text="el.targetMem"></td>
+                                    <td class="col-td" ms-text="el.targetScore"></td>
+                                    <td class="col-td" ms-text="el.targetTimeDesc"></td>
+                                    <td class="col-td" ms-text="el.description"></td>
+									<td class="col-td">
+										<button class="btn btn-blue pull-right-10" ms-click="accessEdit(el)">
+											<i class="fa fa-pencil"></i>同意
+                                        </button>
+                                        <button class="btn btn-blue pull-right-10" ms-click="denyEdit(el)">
+											<i class="fa fa-pencil"></i>拒绝
+										</button>
+									</td>
+								</tr>
+							</tbody>
+                        </table>
+                        <table class="mmg-head tab-list" cellspacing="0" cellpadding="0" ms-visible="tabs_item == 'access'">
+							<thead style="border:0px;">
+								<tr style="height:40px;line-height:40px;border-bottom:1px solid #dedede;">
+                                    <th>序号</th>
+                                    <th>发起人</th>
+									<th>学生姓名</th>
+									<th>原规则</th>
+                                    <th>原说明</th>
+                                    <th>原修改时间</th>
+                                    <th>原分数</th>
+                                    <th>修改后规则</th>
+                                    <th>修改后说明</th>
+                                    <th>修改后分数</th>
+                                    <th>修改时间</th>
+                                    <th>修改理由</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr cellspacing="0" ms-for="(idx,el) in score_access">
+									<td class="col-td" ms-text="idx+1"></td>
+									<td class="col-td" ms-text="el.nickName"></td>
+                                    <td class="col-td" ms-text="el.studentName"></td>
+                                    <td class="col-td" ms-text="el.sourceRule"></td>
+                                    <td class="col-td" ms-text="el.sourceMem"></td>
+                                    <td class="col-td" ms-text="el.sourceTimeDesc"></td>
+                                    <td class="col-td" ms-text="el.sourceScore"></td>
+                                    <td class="col-td" ms-text="el.targetRule"></td>
+                                    <td class="col-td" ms-text="el.targetMem"></td>
+                                    <td class="col-td" ms-text="el.targetScore"></td>
+                                    <td class="col-td" ms-text="el.targetTimeDesc"></td>
+                                    <td class="col-td" ms-text="el.description"></td>
+								</tr>
+							</tbody>
+                        </table>
+                        <table class="mmg-head tab-list" cellspacing="0" cellpadding="0" ms-visible="tabs_item == 'deny'">
+							<thead style="border:0px;">
+								<tr style="height:40px;line-height:40px;border-bottom:1px solid #dedede;">
+                                    <th>序号</th>
+                                    <th>发起人</th>
+									<th>学生姓名</th>
+									<th>原规则</th>
+                                    <th>原说明</th>
+                                    <th>原修改时间</th>
+                                    <th>原分数</th>
+                                    <th>修改后规则</th>
+                                    <th>修改后说明</th>
+                                    <th>修改后分数</th>
+                                    <th>修改时间</th>
+                                    <th>修改理由</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr cellspacing="0" ms-for="(idx,el) in score_deny">
+									<td class="col-td" ms-text="idx+1"></td>
+									<td class="col-td" ms-text="el.nickName"></td>
+                                    <td class="col-td" ms-text="el.studentName"></td>
+                                    <td class="col-td" ms-text="el.sourceRule"></td>
+                                    <td class="col-td" ms-text="el.sourceMem"></td>
+                                    <td class="col-td" ms-text="el.sourceTimeDesc"></td>
+                                    <td class="col-td" ms-text="el.sourceScore"></td>
+                                    <td class="col-td" ms-text="el.targetRule"></td>
+                                    <td class="col-td" ms-text="el.targetMem"></td>
+                                    <td class="col-td" ms-text="el.targetScore"></td>
+                                    <td class="col-td" ms-text="el.targetTimeDesc"></td>
+                                    <td class="col-td" ms-text="el.description"></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div ms-visible="@dis_model == 'edit'">
+		
+	</div>
+<script src="__STATIC__/js/layer/layer.js"></script>
+<script src="__STATIC__/layui/layui.js"></script>
+<script src="__STATIC__/js/avalon2.2.8.js"></script>
+<script src="__STATIC__/js/jquery.cookie.min.js"></script>
+<script src="__STATIC__/js/jQuery.md5.js"></script>
+<script src="__STATIC__/js/logic.js"></script>
+<script src="__STATIC__/js/validator.js"></script>
+<script src="__STATIC__/js/common.js"></script>
+<script>
+jQuery(document).ready(function(){
+	avalon.config({
+		interpolate : ["(|","|)"]
+	});
+
+	layui.use(['form'], function(){});
+	TX.setPageBox();
+    logic_user.read();
+    console.log(logic_user);
+	var vm = avalon.define({
+        $id:"sub",
+        display:false,
+        dis_model:"list",
+        user:logic_user,
+        score_list:[],
+        score_access:[],
+        score_deny:[],
+        score_none:[],
+        tabs_item:'none',
+        class:{none:'active-tab',access:'',deny:''},
+        load:function(){
+            TX.msg('努力加载中...',{time:30000});
+			$.post(logic_urls.getEXScoreList,{},
+				function(data){
+					var json = TX.toJson(data);
+					if(json.status == 1){
+						layer.closeAll();
+                        vm.score_list = json.data;
+                        vm.score_access = [];
+                        vm.score_deny = [];
+                        vm.score_none = [];
+                        for(var i=0;i<vm.score_list.length;i++){
+                            if(vm.score_list[i]['isComplete'] == 0){
+                                vm.score_none.push(vm.score_list[i]);
+                            }else if(vm.score_list[i]['isComplete'] == 1){
+                                vm.score_access.push(vm.score_list[i]);
+                            }else if(vm.score_list[i]['isComplete'] == 2){
+                                vm.score_deny.push(vm.score_list[i]);
+                            }
+                        }
+                        console.log(vm.score_list);
+						avalon.scan();
+					}else{
+						TX.msg(json.msg,{time:5000});
+                    }
+                    vm.display = true;
+				}
+			);
+        },
+        changeTab:function(str){
+            vm.tabs_item = str;
+            for(var k in vm.class){
+                if(str == k){
+                    vm.class[k] = "active-tab";
+                }else{
+                    vm.class[k] = "";
+                }
+            }
+        },
+        accessEdit:function(el){
+            TX.msg('努力加载中...',{time:30000});
+            var vd = {scoreId:el.scoreId};
+            console.log(vd);
+			$.post(logic_urls.enterScoreEdit,vd,
+				function(data){
+                    layer.closeAll();
+                    var json = TX.toJson(data);
+                    console.log(json);
+					if(json.status == 1){
+						layer.closeAll();
+                        if(json.error == 1){
+                            TX.msg(json.msg,{time:5000});
+                        }
+                        vm.sendMsg(el,1);
+                        vm.load();
+						avalon.scan();
+					}else{
+						TX.msg(json.msg,{time:5000});
+                    }
+				}
+			);
+            
+        },
+        changeMsgInvi:function(userId,model){
+            var vd = {
+                scoreId:userId,
+                haveRead:model
+            };
+            console.log(vd);
+			$.post(logic_urls.changeMsgInvi,vd,
+				function(data){
+                    var json = TX.toJson(data);
+                    console.log(json);
+					if(json.status == 1){
+
+					}else{
+						TX.msg(json.msg,{time:5000});
+                    }
+				}
+			);
+        },
+        sendMsg:function(arr,model){
+            var str = '';
+            if(model == 1){
+                str = '同意';
+            }else{
+                str = "拒绝";
+            }
+            var vd = {
+                sender:0,
+                receiver:arr.initiator,
+                msgText:'您对于' + arr.studentName + '的千分制的修改,项目负责人己经' + str + "如有疑问,请联系项目负责人"
+            };
+            console.log(vd);
+			$.post(logic_urls.sendMsg,vd,
+				function(data){
+                    var json = TX.toJson(data);
+                    console.log(json);
+					if(json.status == 1){
+
+					}else{
+						TX.msg(json.msg,{time:5000});
+                    }
+				}
+			);
+        },
+        denyEdit:function(el){
+            TX.msg('努力加载中...',{time:30000});
+            var vd = {scoreId:el.scoreId};
+            console.log(vd);
+			$.post(logic_urls.denyScoreEdit,vd,
+				function(data){
+                    layer.closeAll();
+                    var json = TX.toJson(data);
+                    console.log(json);
+					if(json.status == 1){
+						layer.closeAll();
+                        if(json.error == 1){
+                            TX.msg(json.msg,{time:5000});
+                        }
+                        vm.sendMsg(el,0);
+                        vm.load();
+						avalon.scan();
+					}else{
+						TX.msg(json.msg,{time:5000});
+                    }
+				}
+			);
+            
+        }
+	});
+	vm.load();
+});
+</script>
+</body>
+</html>

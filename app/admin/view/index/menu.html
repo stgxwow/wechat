@@ -1,0 +1,43 @@
+<div class="admin-menu">
+    {volist name="menu" id="vo" key="k"}
+    <div class="menu-box">
+        <div class="menu-show">
+            <a class="glyphicon {if($menuItem['parentId'] == $vo['menuId'])}glyphicon-minus{else}glyphicon-plus{/if}" href="{if(!empty($vo['sub']))}{:url($vo['sub'][0]['menuUrl'])}{/if}">{$vo['menuName']}</a>
+        </div>                
+        <ul class="menu-item-box {if($menuItem['parentId'] == $vo['menuId'])}show-box{else}hidden-box{/if}">
+        {volist name="$vo['sub']" id="voo"}
+            <li class="menu-item"><a href="{:url($voo['menuUrl'])}">{$voo['menuName']}</a></li>
+        {/volist}                    
+        </ul>
+    </div>
+    {/volist}
+    
+    <!-- <div class="menu-box">
+        <div class="menu-show">
+            <p class="glyphicon glyphicon-plus">文章管理</p>
+        </div>
+        <ul class="menu-item-box">
+            <li class="menu-item">文章列表</li>
+            <li class="menu-item">发表文章</li>
+            <li class="menu-item">编辑文章</li>
+        </ul>
+    </div>
+    <div class="menu-box">
+        <div class="menu-show">
+            <p class="glyphicon glyphicon-plus">最新项目</p>
+        </div>
+        <ul class="menu-item-box">
+            <li class="menu-item">项目列表</li>
+            <li class="menu-item">编辑项目</li>
+        </ul>
+    </div>
+    <div class="menu-box">
+        <div class="menu-show">
+            <p class="glyphicon glyphicon-plus">热门管理</p>
+        </div>
+        <ul class="menu-item-box">
+            <li class="menu-item">热门列表</li>
+            <li class="menu-item">编辑列表</li>
+        </ul>
+    </div> -->
+</div>

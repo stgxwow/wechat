@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>成绩分组</title>
+	<link rel="stylesheet" href="__STATIC__/bootstrap/css/bootstrap.min.css" type="text/css" />
+	<link rel="stylesheet" href="__STATIC__/layui/css/layui.css" type="text/css" />
+	<link rel="stylesheet" href="__STATIC__/css/font-awesome.css" type="text/css" />
+	<script src="__STATIC__/js/jquery.min.js"></script>
+	<link rel="stylesheet" href="__STATIC__/css/skins/skin-blue.min.css"type="text/css"/>
+	<link rel="stylesheet" href="__STATIC__/css/index.css" type="text/css"/>
+	<link href="__STATIC__/css/mcommon.css?v=2.0.6_180726" rel="stylesheet" type="text/css" />
+</head>
+<body ms-controller="sub" class="hold-transition skin-blue sidebar-mini" style="display:none;" ms-visible="display">
+	<div ms-visible="dis_model == 'list'">
+		<div class="alert alert-success alert-tips fade in">
+			<div class="head">
+				<i class="fa fa-lightbulb-o"></i>
+				操作说明
+			</div>
+			<ul class="body">
+				<li>该功能主要用于设置学员成绩分组,利用分组来区分学员的成绩。</li>
+			</ul>
+		</div>
+		<div class="wst-toolbar">
+			<select class="form-control" ms-duplex="search_key" ms-change="load">
+				<option disabled selected value="0">请选择班级名称</option>
+				<option ms-repeat-el="class_list" ms-attr-value="el.classId" ms-text="el.className"></option>
+			</select>
+			<button class="btn btn-primary" ms-click="load" style="display:none;">查询</button>
+			<button class="btn btn-success f-right" ms-click="toAdd">
+				<i class="fa fa-plus"></i>
+				新增
+			</button>
+		</div>
+		<div class="wst-grid">
+			<div class="mmGrid" style="width: auto; height: 275px;">
+				<div class="mmg-headWrapper">
+					
+				</div>
+				<div class="mmg-bodyWrapper">
+					<div class="mmg mmg-body" style="border:1px solid #dedede;">
+						<table class="mmg-head tab-list" cellspacing="0" cellpadding="0" >
+							<thead style="border:0px;">
+								<tr style="height:40px;line-height:40px;border-bottom:1px solid #dedede;">
+									<th>序号</th>
+									<th>分组名称</th>
+									<th>课程列表</th>
+									<th>分组状态</th>
+									<th>操作</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr cellspacing="0" ms-repeat-el="group_list">
+									<td class="col-td" ms-text="$index+1"></td>
+									<td class="col-td" ms-text="el.groupName"></td>
+									<td class="col-td" ms-text="el.courseList"></td>
+									<td class="col-td">
+										<img ms-visible="el.dataFlag == 1" src="__STATIC__/img/enable.png" alt="">
+										<img ms-visible="el.dataFlag == 0" src="__STATIC__/img/disable.png" alt="">
+									</td>
+									
+									
+									<td class="col-td">
+										<button class="btn btn-blue pull-right-10" ms-click="toEdit(el)">
+											<i class="fa fa-pencil"></i>编辑
+										</button>
+										<button class="btn btn-red pull-right-10" ms-click="toDelete(el.groupId,0)">
+											<i class="fa fa-trash-o"></i>删除
+										</button>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+			<div id="pd" class="mmPaginator">
+				<div class="totalCountLabel" ms-text="'共'+page.total+'条'"></div>
+					<ul class="pageList">
+						<li class="prev" ms-class="disable:page.current_page < 2" ms-click="changePage($event,parseInt(page.current_page)-1)"><a href="#">«</a></li>
+						<li ms-repeat-el="page.page_item" ms-class="active:page.current_page == el" ms-click="changePage($event,el)"><a href="#" ms-text="el"></a></li>
+						<li class="next" ms-click="changePage($event,parseInt(page.current_page)+1)"><a href="#">»</a></li>
+					</ul>
+				<div class="limit" ms-class="page.current_page >= page.total" ms-text-"'每页'+page.per_page+'条'"></div>
+			</div>
+		</div>
+	</div>
+	<div ms-visible="dis_model == 'edit' || dis_model == 'add'">
+		<div class="mmg mmg-body">
+			<table class="mmg-head wst-form wst-box-top top-tab" style="width:60%;margin:0 auto;" cellspacing="0" cellpadding="0" >
+				<tbody>
+					<tr>
+						<th width="150">分组名称<font color="red">*</font>：</th>
+						<td><input type="text" class="ipt" style="width:350px;" ms-duplex="item.groupName"></td>
+					</tr>
+					<tr>
+						<th width="150">分组状态<font color="red">*</font>：</th>
+						<td>
+							<select class="ipt" style="width:350px;" ms-duplex="item.dataFlag">
+								<option value="1">有效</option>
+								<option value="0">无效</option>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<th width="150" >所属班级<font color="red">*</font>：</th>
+						<td>
+							<select class="ipt" style="width:350px;" ms-duplex="item.classId">
+								<option disabled selected value="0">请选择班级名称</option>
+								<option ms-repeat-el="class_list" ms-attr-value="el.classId" ms-text="el.className"></option>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<th width="150">&nbsp;</th>
+						<td style="text-align:center;color:red;" ms-visible="err.err" ms-text="err.msg">1</td>
+					</tr>
+					<tr>
+						<th width="150">&nbsp;</th>
+						<td>	
+								<button class="btn btn-green pull-reight-50 pull-left-100" ms-click="toSave">
+									<i class="fa fa-check"></i>保存
+								</button>
+								<button class="btn btn-red" ms-click="returnList">
+									<i class="fa fa-angle-double-left"></i>返回
+								</button>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+	
+<script src="__STATIC__/js/layer/layer.js"></script>
+<script src="__STATIC__/layui/layui.js"></script>
+<script src="__STATIC__/js/avalon.js"></script>
+<script src="__STATIC__/js/jquery.cookie.min.js"></script>
+<script src="__STATIC__/js/jQuery.md5.js"></script>
+<script src="__STATIC__/js/logic.js"></script>
+<script src="__STATIC__/js/validator.js"></script>
+<script src="__STATIC__/js/common.js"></script>
+<script>
+jQuery(document).ready(function(){
+	avalon.config({
+		interpolate : ["(|","|)"]
+	});
+
+	layui.use(['form'], function(){});
+	TX.setPageBox();
+	var vm = avalon.define({
+		$id:"sub",
+		display:true,
+		dis_model:"list",
+		group_list:[],
+		class_list:[],
+		course_list:[],
+		search_key:0,
+		where:{},
+		err:{err:false,msg:""},
+		item:{
+			groupId:0,
+			groupName:'',
+			classId:'',
+			dataFlag:1
+		},
+		page:{
+			total:0,
+			per_page:50,
+			current_page:1,
+			last_page:0,
+			page_item:[]
+		},		
+		load:function(){
+			TX.msg('努力加载中...',{time:30000});
+			var vd = {
+				page_per_page:vm.page.$model.per_page,
+				page_current_page:vm.page.$model.current_page,
+				where_classId:vm.search_key
+			};
+			console.log(vd);
+			$.post(logic_urls.adminGroup,vd,
+				function(data){
+					var json = TX.toJson(data);
+					console.log(json);
+					if(json.status == 1){
+						layer.closeAll();
+						vm.course_list = json.course_list;
+						var sd = json.data;
+						vm.class_list = json.class_list;
+						vm.group_list = sd.data;
+						vm.page.total = sd.total;
+						vm.page.per_page = sd.per_page;
+						vm.current_page = sd.current_page;
+						vm.page.last_page = sd.last_page;
+						vm.page.page_item = [];
+						for(var i=1;i<=vm.page.last_page;i++){
+							vm.page.page_item.push(i);
+						}
+						avalon.scan();
+					}else{
+						TX.msg(json.msg,{time:5000});
+					}
+				}
+			);
+		},
+		resetItem:function(){
+			vm.item = {
+				groupName:'',
+				dataFlag:1,
+				classId:''
+			};
+		},
+		toAdd:function(){
+			vm.resetItem();
+			vm.item.classId = vm.search_key,
+			vm.dis_model = "add";
+		},
+		toEdit:function(el){
+			vm.item = el.$model;
+			vm.dis_model = "edit";
+		},
+		toDelete:function(id,dl){
+			layer.confirm("删除后将不可恢复,确定要删除吗?",
+				{btn:["确定","取消"],
+					function(){
+						layer.closeAll();
+						return false;
+					}
+				},
+				function(){
+					layer.closeAll();
+					var vd = {
+						data_groupId:id,
+						page_per_page:vm.page.per_page,
+						page_current_page:vm.page.current_page,
+						where_classId:vm.search_key
+					};
+					TX.msg("数据提交中......",{time:30000});
+					$.post(logic_urls.delGroup,vd,
+						function(data){
+							var json = TX.toJson(data);
+							console.log(json);
+							if(json.status == 1){
+								layer.closeAll();
+								vm.group_list = json.data.data;
+								vm.page.per_page = json.data.per_page;
+								vm.page.current_page = json.data.current_page;
+								vm.page.total = json.data.total;
+								vm.page.last_page = json.data.last_page;
+								vm.page.page_item = [];
+								for(var i=1;i<=vm.page.last_page;i++){
+									vm.page.page_item.push(i);
+								}
+								vm.returnList();
+								avalon.scan();
+							}else{
+								TX.msg(json.msg,{time:3000});
+							}
+						}
+					)
+				},
+				function(){
+					layer.closeAll();
+					return false;
+				}
+			);
+		},
+		toSave:function(){
+			var vd = vm.item.$model;
+			vm.saveGroup(vd);
+		},
+		saveGroup:function(arr){
+			vm.precheck();
+			if(vm.err.err){
+				return;
+			}
+			TX.msg('努力加载中...',{time:30000});
+			var vd = {
+				page_per_page:vm.page.per_page,
+				page_current_page:vm.page.current_page,
+				data_groupName:vm.item.$model.groupName,
+				data_dataFlag:vm.item.$model.dataFlag,
+				data_classId:vm.item.$model.classId,
+				where_classId:vm.search_key
+			};
+			if(vm.item.groupId > 0){
+				vd.data_groupId = vm.item.$model.groupId;
+			}
+			console.log(vd);
+			$.post(logic_urls.saveGroup,vd,
+				function(data){
+					var json = TX.toJson(data);
+					console.log(json);
+					if(json.status == 1){
+						layer.closeAll();
+						console.log(json);
+						vm.group_list = json.data.data;
+						vm.page.per_page = json.data.per_page;
+						vm.page.current_page = json.data.current_page;
+						vm.page.total = json.data.total;
+						vm.page.last_page = json.data.last_page;
+						vm.page.page_item = [];
+						for(var i=1;i<=vm.page.last_page;i++){
+							vm.page.page_item.push(i);
+						}
+						vm.returnList();
+						avalon.scan();
+					}else{
+						TX.msg(json.msg,{time:5000});
+					}
+				}
+			);
+		},
+		returnList:function(){
+			vm.resetItem();
+			vm.dis_model = "list";
+			avalon.scan();
+		},
+		changePage:function(e,p){
+			e.preventDefault();
+			var num = vm.page.last_page;
+			if(p >=1 && p <=num){
+				vm.page.current_page = p;
+				vm.load();
+			}
+		},
+		precheck:function(){
+			vm.err.err = false;
+			vm.err.msg = '';
+			vm.err.msg = validator.checkText(vm.item.groupName,1,50,"分组名称");
+			if(vm.err.msg != ''){
+				vm.err.err = true;
+				return;
+			}
+			vm.err.msg = validator.checkNumber(vm.item.dataFlag,"分组状态");
+			if(vm.err.msg != ''){
+				vm.err.err = true;
+				return;
+			}
+			if(vm.dis_model == "edit"){
+				vm.err.msg = validator.checkNumber(vm.item.groupId,"分组ID");
+				if(vm.err.msg != ''){
+					vm.err.err = true;
+					return;
+				}
+			}
+		},
+		selectForItem:function(id){
+			if(id <= 0){
+				vm.class_select = [];
+			}else{
+				vm.class_select = [];
+				for(var i=0;i<vm.class_list.length;i++){
+					if(id == vm.class_list[i]['proId']){
+						vm.class_select.push(vm.class_list[i]);
+					}
+				}
+			}
+		},
+		selectForWhere:function(id){
+			if(id <= 0){
+				vm.class_arr = [];
+			}else{
+				vm.class_arr = [];
+				for(var i=0;i<vm.class_list.length;i++){
+					if(id == vm.class_list[i]['proId']){
+						vm.class_arr.push(vm.class_list[i]);
+					}
+				}
+			}
+		},
+
+	});
+	vm.load();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>千分制规则列表</title>
+	<link rel="stylesheet" href="__STATIC__/bootstrap/css/bootstrap.min.css" type="text/css" />
+	<link rel="stylesheet" href="__STATIC__/layui/css/layui.css" type="text/css" />
+	<link rel="stylesheet" href="__STATIC__/css/font-awesome.css" type="text/css" />
+	<script src="__STATIC__/js/jquery.min.js"></script>
+	<link rel="stylesheet" href="__STATIC__/css/skins/skin-blue.min.css"type="text/css"/>
+	<link rel="stylesheet" href="__STATIC__/css/index.css" type="text/css"/>
+	<link href="__STATIC__/css/mcommon.css?v=2.0.6_180726" rel="stylesheet" type="text/css" />
+</head>
+<body ms-controller="sub" class="hold-transition skin-blue sidebar-mini" style="display:none;" ms-visible="display">
+	<div ms-visible="dis_model == 'list'">
+		<div class="alert alert-success alert-tips fade in">
+			<div class="head">
+				<i class="fa fa-lightbulb-o"></i>
+				操作说明
+			</div>
+			<ul class="body">
+				<li>该功能主要用于设置千分制规则信息，包括新增和编辑等操作。</li>
+			</ul>
+		</div>
+		<div class="wst-toolbar">
+			<button class="btn btn-success margin-left-20" ms-click="toUpload">
+				<i class="fa fa-plus"></i>
+				批量导入规则
+			</button>
+			<button class="btn btn-success" style="margin-left:20px;" ms-click="exportData">
+				<i class="fa fa-plus"></i>
+				导出到EXCEL
+			</button>
+			<button class="btn btn-success margin-left-20" ms-click="toDownload">
+				<i class="fa fa-plus"></i>
+				下载导入模板
+			</button>
+			<button class="btn btn-success f-right" ms-click="@toAdd">
+				<i class="fa fa-plus"></i>
+				新增
+			</button>
+		</div>
+		<div class="wst-grid">
+			<div class="mmGrid" style="width: auto; height: 275px;">
+				<div class="mmg-headWrapper">
+					
+				</div>
+				<div class="mmg-bodyWrapper">
+					<div class="mmg mmg-body" style="border:1px solid #dedede;">
+						<table class="mmg-head tab-list" cellspacing="0" cellpadding="0" >
+							<thead style="border:0px;">
+								<tr style="height:40px;line-height:40px;border-bottom:1px solid #dedede;">
+									<th class="col-5">序号</th>
+									<th class="col-25">规则名称</th>
+									<th class="col-35">规则描述</th>
+									<th class="col-5">分值</th>
+									<th class="col-5">规则类型</th>
+									<th class="col-10">是否有效</th>
+									<th class="col-15">操作</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr cellspacing="0" ms-for="(idx,el) in @role_list">
+									<td class="col-td" ms-text="idx+1"></td>
+									<td class="col-td" ms-text="el.itemName"></td>
+									<td class="col-td" ms-text="el.itemText"></td>
+									<td class="col-td" ms-text="el.score"></td>
+									<td class="col-td">
+										<span ms-visible="el.itemType == 1">加分</span>
+										<span ms-visible="el.itemType == 0">扣分</span>
+									</td>
+									<td class="col-td">
+										<img ms-visible="el.dataFlag == 1" src="__STATIC__/img/enable.png" alt="">
+										<img ms-visible="el.dataFlag == 0" src="__STATIC__/img/disable.png" alt="">
+									</td>
+									<td class="col-td">
+										<button class="btn btn-blue pull-right-10" ms-click="toEdit(el)">
+											<i class="fa fa-pencil"></i>编辑
+										</button>
+										<button class="btn btn-red pull-right-10" ms-click="toDelete(el.itemId,0)">
+											<i class="fa fa-trash-o"></i>删除
+										</button>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div ms-visible="dis_model == 'edit' || dis_model == 'add'">
+		<div class="mmg mmg-body">
+			<table class="mmg-head wst-form wst-box-top top-tab" style="width:60%;margin:0 auto;" cellspacing="0" cellpadding="0" >
+				<tbody>
+					<tr style="padding-top:30px;">
+						<th width="150">规则名称<font color="red">*</font>：</th>
+						<td>
+							<input type="text" class="ipt" style="width:350px;" ms-duplex="@item.itemName">
+						</td>
+					</tr>
+					<tr style="padding-top:30px;">
+						<th width="150">规则描述<font color="red">*</font>：</th>
+						<td>
+							<textarea class="ipt" style="width:350px;" id="itemText" rows="3" ms-duplex="@item.itemText">
+								
+							</textarea>
+						</td>
+					</tr>
+					<tr>
+						<th width="150">规则类型<font color="red">*</font>：</th>
+						<td>
+							<select class="ipt" style="width:350px;" ms-duplex="@item.itemType">
+								<option value="1">加分</option>
+								<option value="0">扣分</option>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<th width="150">分&nbsp;&nbsp;值<font color="red">*</font>：</th>
+						<td><input type="text" class="ipt" style="width:350px;" ms-duplex="@item.score"></td>
+					</tr>
+					<tr>
+						<th width="150">是否有效<font color="red">*</font>：</th>
+						<td>
+							<select class="ipt" style="width:350px;" ms-duplex="@item.dataFlag">
+								<option value="1">有效</option>
+								<option value="0">无效</option>
+							</select>
+						</td>
+					</tr>
+					
+					<tr>
+						<th width="150">&nbsp;</th>
+						<td style="text-align:center;color:red;" ms-visible="err.err" ms-text="err.msg">1</td>
+					</tr>
+					<tr>
+						<th width="150">&nbsp;</th>
+						<td>	
+								<button class="btn btn-green pull-reight-50 pull-left-100" ms-click="@toSave">
+									<i class="fa fa-check"></i>保存
+								</button>
+								<button class="btn btn-red" ms-click="@returnList">
+									<i class="fa fa-angle-double-left"></i>返回
+								</button>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+	<input type="file" name="files" id="files1" style="display:none;">
+<script src="__STATIC__/js/layer/layer.js"></script>
+<script src="__STATIC__/layui/layui.js"></script>
+<script src="__STATIC__/js/avalon2.2.8.js"></script>
+<script src="__STATIC__/js/jquery.cookie.min.js"></script>
+<script src="__STATIC__/js/jQuery.md5.js"></script>
+<script src="__STATIC__/js/logic.js"></script>
+<script src="__STATIC__/js/validator.js"></script>
+<script src="__STATIC__/js/common.js"></script>
+<script>
+jQuery(document).ready(function(){
+	avalon.config({
+		interpolate : ["(|","|)"]
+	});
+
+	layui.use(['form'], function(){});
+	TX.setPageBox();
+	var vm = avalon.define({
+		$id:"sub",
+		display:true,
+		dis_model:"list",
+		role_list:[],
+		err:{err:false,msg:""},
+		item:{
+			itemId:0,
+			itemName:'',
+			itemText:'',
+			itemType:0,
+			score:0,
+			dataFlag:1
+		},
+		load:function(){
+			TX.msg('努力加载中...',{time:30000});
+			$.post(logic_urls.adminScoreRole,{},
+				function(data){
+					var json = TX.toJson(data);
+					console.log(json);
+					if(json.status == 1){
+						layer.closeAll();
+						vm.role_list = json.data;						
+						avalon.scan();
+					}else{
+						TX.msg(json.msg,{time:5000});
+					}
+				}
+			);
+		},
+		resetItem:function(){
+			vm.item = {
+				itemName:'',
+				itemText:'',
+				itemType:0,
+				score:0,
+				dataFlag:1
+			};
+		},
+		toAdd:function(){
+			vm.resetItem();
+			vm.dis_model = "add";
+		},
+		toEdit:function(el){
+			vm.item = el.$model;
+			vm.dis_model = "edit";
+		},
+		toSave:function(){
+			var vd = vm.item.$model;
+			vm.saveRole(vd);
+		},
+		saveRole:function(arr){
+			vm.precheck(arr);
+			if(vm.err.err){
+				return;
+			}
+			TX.msg('努力加载中...',{time:30000});
+			$.post(logic_urls.saveScoreRole,arr,
+				function(data){
+					var json = TX.toJson(data);
+					if(json.status == 1){
+						layer.closeAll();
+						if(arr.itemId > 0){
+							for(var i=0;i<vm.role_list.length;i++){
+								if(json.data['itemId'] == vm.role_list[i]['itemId']){
+									vm.role_list.set(i,json.data);
+									break;
+								}
+							}
+						}else{
+							vm.role_list.push(json.data);
+						}						
+						vm.returnList();
+						avalon.scan();
+					}else{
+						TX.msg(json.msg,{time:5000});
+					}
+				}
+			);
+		},
+		toDelete:function(id){
+			layer.confirm("是否要删除",
+				{btn:["确定","取消"],
+					function(){
+						layer.closeAll();
+						return false;
+					}
+				},
+				function(){
+					layer.closeAll();
+					var vd = {
+						itemId:id
+					};
+					TX.msg("数据提交中......",{time:30000});
+					$.post(logic_urls.delScoreRole,vd,
+						function(data){
+							var json = TX.toJson(data);
+							console.log(json);
+							if(json.status == 1){
+								layer.closeAll();
+								for(var i=0;i<vm.role_list.length;i++){
+									if(vm.role_list[i]['itemId'] == json.data){
+										vm.role_list.splice(i,1);
+										break;
+									}
+								}
+								avalon.scan();
+							}else{
+								TX.msg(json.msg,{time:3000});
+							}
+						}
+					);
+				},
+				function(){
+					layer.closeAll();
+					return false;
+				}
+			);
+		},
+		returnList:function(){
+			vm.resetItem();
+			vm.dis_model = "list";
+			avalon.scan();
+		},
+		toDownload:function(){
+			window.location.href = "/public/upload/files/千分制规则表.xlsx"
+		},
+		exportData:function(){
+			var urlStr = logic_urls.exportScoreRule;
+			window.location.href = urlStr;
+		},
+		toUpload:function(){
+			$("#files1").click();
+		},
+		precheck:function(arr){
+			vm.err.err = false;
+			vm.err.msg = '';
+			vm.err.msg = validator.checkText(arr.itemName,1,30,"规则名称");
+			if(vm.err.msg != ''){
+				vm.err.err = true;
+				return;
+			}
+			vm.err.msg = validator.checkText(arr.itemText,1,100,"规则说明");
+			if(vm.err.msg != ''){
+				vm.err.err = true;
+				return;
+			}
+			vm.err.msg = validator.checkNumber(arr.itemType,"规则类型");
+			if(vm.err.msg != ''){
+				vm.err.err = true;
+				return;
+			}
+			vm.err.msg = validator.checkNumber(arr.score,"分值");
+			if(vm.err.msg != ''){
+				vm.err.err = true;
+				return;
+			}
+			vm.err.msg = validator.checkNumber(arr.dataFlag,"状态");
+			if(vm.err.msg != ''){
+				vm.err.err = true;
+				return;
+			}
+			if(vm.dis_model == "edit"){
+				vm.err.msg = validator.checkNumber(arr.itemId,"规则ID");
+				if(vm.err.msg != ''){
+					vm.err.err = true;
+					return;
+				}
+			}
+		}
+
+	});
+	$("#files1").change(function(e){
+		var that = this;
+		var f = new FormData();
+		f.append('file',this.files[0]);
+		var urls = logic_urls.importScoreRule + '?dir=scoreRule&fileName=scoreRule';
+		console.log(urls);
+		$.ajax({
+			url:urls,
+			type: 'POST',
+			cache: false,
+			data: f,
+			processData: false,
+			contentType: false,
+			success:function(data){
+				var json = TX.toJson(data);
+				console.log(json);
+				if(json.status == 1){
+					TX.msg('批量导入千分制成功',{time:3000,icon:3,skin: 'layer-ext-moon'});
+					setTimeout(function(){vm.load();},3000);
+					avalon.scan();
+				}else{
+					TX.msg('批量导入学员千分制失败,代码为' + json.msg,{time:3000,icon:3,skin: 'layer-ext-moon'});
+					avalon.scan();
+				}
+			},
+			complete:function(data){
+				that.value = "";
+			}
+		});
+	});
+	vm.load();
+});
+</script>
+</body>
+</html>

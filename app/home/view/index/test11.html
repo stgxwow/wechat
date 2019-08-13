@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="__STATIC__/bootstrap/css/bootstrap.min.css" type="text/css" />
+	<link rel="stylesheet" href="__STATIC__/layui/css/layui.css" type="text/css" />
+	<link rel="stylesheet" href="__STATIC__/css/font-awesome.css" type="text/css" />
+	<script src="__STATIC__/js/jquery.min.js"></script>
+	<link rel="stylesheet" href="__STATIC__/css/skins/skin-blue.min.css"type="text/css"/>
+	<link rel="stylesheet" href="__STATIC__/css/index.css" type="text/css"/>
+	<link href="__STATIC__/css/mcommon.css?v=2.0.6_180726" rel="stylesheet" type="text/css" />
+	<link rel="stylesheet" type="text/css" href="__STATIC__/js/datetimepicker/jquery.datetimepicker.css"/>
+</head>
+<body ms-controller="sub">
+    <form action="importScoreRule" enctype="multipart/form-data" method="post">
+        <input type="file" name="fd">
+        <input type="text" name="dir" value="scoreRule">
+        <!-- <input type="text" name="groupId" value="9"> -->
+        <input type="text" name="classId" value="1">
+        <input type="text" name="fileName" value="scoreRule">
+        <input type="submit" value="提交">
+    </form>
+    <video ms-repeat-el="vedio_list" style="width:300px;height:300px;" controls="controls" ms-attr-src="el"></video>
+    <button ms-click="loadInfo">加载</button>
+    <script src="__STATIC__/js/datetimepicker/build/jquery.datetimepicker.full.js"></script>
+<script src="__STATIC__/js/layer/layer.js"></script>
+<script src="__STATIC__/layui/layui.js"></script>
+<script src="__STATIC__/js/avalon.js"></script>
+<script src="__STATIC__/js/jquery.cookie.min.js"></script>
+<script src="__STATIC__/js/jQuery.md5.js"></script>
+<script src="__STATIC__/js/logic.js"></script>
+<script src="__STATIC__/js/validator.js"></script>
+<script src="__STATIC__/js/common.js"></script>
+<script src="__STATIC__/js/ajaxfileupload.js"></script>
+<script src="https://cdn.bootcss.com/require.js/2.3.6/require.js"></script>
+<script>
+    jQuery(document).ready(function(){
+        avalon.config({
+            interpolate : ["(|","|)"]
+        });
+
+        var vm = avalon.define({
+            $id:"sub",
+            display:true,
+            vedio_list:[],
+            load:function(){
+                avalon.scan();
+            },
+            loadInfo:function(){
+                $.post('/home/apps/searchStudentInfo?studentId=1&groupId=1',{},
+                    function(data){
+                        var json = TX.toJson(data);
+                        console.log(json.data);
+                        if(json.status == 1){
+                            vm.vedio_list = json.data.vedio_list;
+                            console.log(vm.vedio_list);
+                        }
+                        
+                    }                
+                )
+            }
+        });
+        vm.load();
+    });
+</script>
+</body>
+</html>

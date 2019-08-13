@@ -1,0 +1,106 @@
+header{
+    width:100%;
+    height:100px;
+    background-color:#088C8A;
+    border-bottom:2px solid #05504F;
+}
+.admin-box{
+    width:100%;
+    overflow:hidden;
+}
+.admin-menu{
+    padding-left:10px;
+    width:200px;
+    border:1px solid #333333;
+    float:left;
+    font-size:1.2em;
+    background-color:#086463;
+    color:#ffffff;
+    padding-bottom:300px;
+}
+.admin-menu li,a{
+    cursor: pointer;
+}
+.menu-box{
+    
+    padding-top:10px;
+}
+ul{
+    padding:0px;
+    margin:0px;
+}
+.menu-box a{
+    display:block;
+    padding:5px 0px;
+    text-decoration:none;
+    color:#ffffff;
+}
+.menu-box a:hover{
+    display:block;
+    text-decoration:none;
+    color:#ffffff;
+}
+.admin-content{
+    float:left;
+}
+.menu-item-box{
+    margin-left:10px;
+}
+.menu-item{
+    padding:5px 20px;
+}
+
+/*右侧主体*/
+.list-box{
+    float:left;
+    padding-bottom:300px;
+    overflow: hidden;
+    overflow: hidden;
+    text-align:center;
+}
+.list-form{
+    width:800px;
+    margin:0 auto;
+}
+.list-form td{
+    padding:10px 0px;
+}
+.admin-list{
+    table-layout:fixed;
+    border-collapse:collapse;
+}
+.show-box{
+    display:block;
+}
+.hidden-box{
+    display:none;
+}
+.input-text{
+    display:block;
+    width:99%;
+    height:30px;
+    line-height:30px;
+}
+.form-title{
+    width:10%;
+}
+.form-content{
+    width:40%;
+}
+.form-select{
+    display:block;
+    width:99%;
+    height:25px;
+    line-height:25px;
+}
+#editor{
+    width:99%;
+    margin:0 auto;
+}
+.form-content section{
+    display:inline-block;
+}
+.form-content span{
+    display:inline-block;
+    padding-right:30px;
+}

@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>学生列表</title>
+	<link rel="stylesheet" href="__STATIC__/bootstrap/css/bootstrap.min.css" type="text/css" />
+	<link rel="stylesheet" href="__STATIC__/layui/css/layui.css" type="text/css" />
+	<link rel="stylesheet" href="__STATIC__/css/font-awesome.css" type="text/css" />
+	<script src="__STATIC__/js/jquery.min.js"></script>
+	<link rel="stylesheet" href="__STATIC__/css/skins/skin-blue.min.css"type="text/css"/>
+	<link rel="stylesheet" href="__STATIC__/css/index.css" type="text/css"/>
+	<link href="__STATIC__/css/mcommon.css?v=2.0.6_180726" rel="stylesheet" type="text/css" />
+</head>
+<body ms-controller="sub" class="hold-transition skin-blue sidebar-mini" style="display:none;" ms-visible="display">
+	<div ms-visible="dis_model == 'list'">
+		<div class="alert alert-success alert-tips fade in">
+			<div class="head">
+				<i class="fa fa-lightbulb-o"></i>
+				操作说明
+			</div>
+			<ul class="body">
+				<li>该模块主要用于查询学员资料，在列表上面，设置有导入和导出功能，在进行导入时，需要下载相应的导入模板，并选择好项目和班级。需要注意的是,在进行学员信息批量导入时,只能够导入一次,如果有错误,需要先删除以前导入的信息才可以进行第二次导入。</li>
+			</ul>
+		</div>
+		<div class="wst-toolbar">
+			<input type="text" class="form-control" placeholder="请输入学生姓名" ms-duplex="where.studentName">
+			<input type="text" class="form-control" placeholder="请输入学号" ms-duplex="where.studentNumber">
+			<select class="form-control" ms-duplex="where.proId">
+				<option value="">所有项目</option>
+				<option ms-repeat-el="program_list" ms-attr-value="el.proId" ms-text="el.proName"></option>
+			</select>
+			<select class="form-control" ms-duplex="where.classId">
+				<option selected value="">请选择班级名称</option>
+				<option ms-repeat-el="class_arr" ms-attr-value="el.classId" ms-text="el.className"></option>
+			</select>
+			<button class="btn btn-primary" ms-click="load">查询</button>
+			<button class="btn btn-success margin-left-20" ms-click="toUpload">
+				<i class="fa fa-plus"></i>
+				批量导入学生资料
+			</button>
+			<button class="btn btn-success margin-left-20" ms-click="exportStudent">
+				<i class="fa fa-plus"></i>
+				导出到EXCEL
+			</button>
+			<button class="btn btn-success margin-left-20" ms-click="toDownload">
+				<i class="fa fa-plus"></i>
+				下载导入模板
+			</button>
+			<button class="btn btn-success f-right" ms-click="toAdd">
+				<i class="fa fa-plus"></i>
+				新增
+			</button>
+		</div>
+		<div class="wst-grid">
+			<div class="mmGrid" style="width: auto; height: 275px;">
+				<div class="mmg-headWrapper">
+					
+				</div>
+				<div class="mmg-bodyWrapper">
+					<div class="mmg mmg-body" style="border:1px solid #dedede;">
+						<table class="mmg-head tab-list" cellspacing="0" cellpadding="0" >
+							<thead style="border:0px;">
+								<tr style="height:40px;line-height:40px;border-bottom:1px solid #dedede;">
+									<th>序号</th>
+									<th>姓名</th>
+									<th>学号</th>
+									<th>性别</th>
+									<th>所属班级</th>
+									<th>移动电话</th>
+									<th>家庭住址</th>
+									<th>身份证号</th>									
+									<th>所属项目</th>
+									<th>状态</th>
+									<th>操作</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr cellspacing="0" ms-repeat-el="student_list">
+									<td class="col-td" ms-text="$index+1"></td>
+									<td class="col-td" ms-text="el.studentName"></td>
+									<td class="col-td" ms-text="el.studentNumber"></td>
+									<td class="col-td">
+										<span ms-visible="el.gender == 1">男</span>
+										<span ms-visible="el.gender == 0">女</span>
+									</td>
+									<td class="col-td" ms-text="el.className"></td>
+									<td class="col-td" ms-text="el.mobile"></td>
+									<td class="col-td" ms-text="el.address"></td>
+									<td class="col-td" ms-text="el.IDCard"></td>
+									<td class="col-td" ms-text="el.proName"></td>
+									<td class="col-td">
+										<img ms-visible="el.dataFlag == 1" src="__STATIC__/img/enable.png" alt="">
+										<img ms-visible="el.dataFlag == 0" src="__STATIC__/img/disable.png" alt="">
+									</td>
+									
+									
+									<td class="col-td">
+										<button class="btn btn-blue pull-right-10" ms-click="toEdit(el)">
+											<i class="fa fa-pencil"></i>编辑
+										</button>
+										<button class="btn btn-red pull-right-10" ms-click="toDelete(el,0)">
+											<i class="fa fa-trash-o"></i>删除
+										</button>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+			<div id="pd" class="mmPaginator">
+				<div class="totalCountLabel" ms-text="'共'+page.total+'条'"></div>
+					<ul class="pageList">
+						<li class="prev" ms-class="disable:page.current_page < 2" ms-click="changePage($event,parseInt(page.current_page)-1)"><a href="#">«</a></li>
+						<li ms-repeat-el="page.page_item" ms-class="active:page.current_page == el" ms-click="changePage($event,el)"><a href="#" ms-text="el"></a></li>
+						<li class="next" ms-click="changePage($event,parseInt(page.current_page)+1)"><a href="#">»</a></li>
+					</ul>
+				<div class="limit" ms-class="page.current_page >= page.total" ms-text-"'每页'+page.per_page+'条'"></div>
+			</div>
+		</div>
+	</div>
+	<div ms-visible="dis_model == 'edit' || dis_model == 'add'">
+		<div class="mmg mmg-body">
+			<table class="mmg-head wst-form wst-box-top top-tab" style="width:60%;margin:0 auto;" cellspacing="0" cellpadding="0" >
+				<tbody>
+					<tr>
+						<th width="150">学生姓名<font color="red"></font>：</th>
+						<td><input type="text" class="ipt" style="width:350px;" ms-duplex="item.studentName"></td>
+					</tr>
+					<tr>
+						<th width="150">所属项目<font color="red"></font>：</th>
+						<td>
+							<select class="ipt" style="width:350px;" ms-duplex="item.proId">
+								<option ms-repeat-el="program_list" ms-attr-value="el.proId">(|el.proName|)</option>
+							</select>
+						</td>
+					</tr>
+					<tr style="padding-top:30px;">
+						<th width="150">所属班级<font color="red"></font>：</th>
+						<td>
+							<select class="ipt" style="width:350px;" ms-duplex="item.classId">
+								<option ms-repeat-el="class_select" ms-attr-value="el.classId">(|el.className|)</option>
+							</select>
+						</td>
+					</tr>
+
+					<tr ms-visible="item.proId > 0 && item.classId > 0">
+						<th width="150">学生学号<font color="red"></font>：</th>
+						<td><input id="studentNumber" type="text" class="ipt" style="width:350px;" ms-duplex="item.studentNumber" ms-blur="checkStudentNumber"></td>
+					</tr>
+					<tr>
+						<th width="150">性&nbsp;&nbsp;别<font color="red">*</font>：</th>
+						<td>
+							<select class="ipt" style="width:350px;" ms-duplex="item.gender">
+								<option value="1">男</option>
+								<option value="0">女</option>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<th width="150">身份证号<font color="red"></font>：</th>
+						<td><input type="text" class="ipt" style="width:350px;" ms-duplex="item.IDCard"></td>
+					</tr>
+					<tr>
+						<th width="150">生&nbsp;&nbsp;日<font color="red">*</font>：</th>
+						<td><input type="date" class="ipt" style="width:350px;" ms-duplex="item.birthDay"></td>
+					</tr>
+					<tr>
+						<th width="150">家庭住址<font color="red">*</font>：</th>
+						<td><input type="text" class="ipt" style="width:350px;" ms-duplex="item.address"></td>
+					</tr>
+					<tr>
+						<th width="150">移动电话<font color="red">*</font>：</th>
+						<td><input type="text" class="ipt" style="width:350px;" ms-duplex="item.mobile"></td>
+					</tr>
+					<tr>
+						<th width="150">学生状态<font color="red">*</font>：</th>
+						<td>
+							<select class="ipt" style="width:350px;" ms-duplex="item.dataFlag">
+								<option value="1">有效</option>
+								<option value="0">无效</option>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<th width="150">&nbsp;</th>
+						<td style="text-align:center;color:red;" ms-visible="err.err" ms-text="err.msg">1</td>
+					</tr>
+					<tr>
+						<th width="150">&nbsp;</th>
+						<td>	
+								<button class="btn btn-green pull-reight-50 pull-left-100" ms-click="toSave">
+									<i class="fa fa-check"></i>保存
+								</button>
+								<button class="btn btn-red" ms-click="returnList">
+									<i class="fa fa-angle-double-left"></i>返回
+								</button>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+	<input type="file" name="files" id="files1" style="display:none;">
+<script src="__STATIC__/js/layer/layer.js"></script>
+<script src="__STATIC__/layui/layui.js"></script>
+<script src="__STATIC__/js/avalon.js"></script>
+<script src="__STATIC__/js/jquery.cookie.min.js"></script>
+<script src="__STATIC__/js/jQuery.md5.js"></script>
+<script src="__STATIC__/js/logic.js"></script>
+<script src="__STATIC__/js/validator.js"></script>
+<script src="__STATIC__/js/common.js"></script>
+<script src="__STATIC__/js/ajaxfileupload.js"></script>
+<script>
+jQuery(document).ready(function(){
+	avalon.config({
+		interpolate : ["(|","|)"]
+	});
+
+	layui.use(['form'], function(){});
+	TX.setPageBox();
+	logic_user.read();
+	var vm = avalon.define({
+		$id:"sub",
+		display:true,
+		dis_model:"list",
+		program_list:[],
+		student_list:[],
+		class_list:[],
+		class_arr:[],
+		class_select:[],
+		where:{studentName:'',studentNumber:'',proId:'',classId:''},
+		err:{err:false,msg:""},
+		item:{
+			studentId:0,
+			studentNumber:'',
+			studentName:'',
+			proId:0,
+			classId:0,
+			gender:1,
+			IDCard:'',
+			birthDay:'',
+			address:'',
+			mobile:'',
+			dataFlag:1
+		},
+		page:{
+			total:0,
+			per_page:50,
+			current_page:1,
+			last_page:0,
+			page_item:[]
+		},		
+		load:function(){
+			TX.msg('努力加载中...',{time:30000});
+			var vd = {
+				where_studentName:vm.where.$model.studentName,
+				where_studentNumber:vm.where.$model.studentNumber,
+				page_per_page:vm.page.$model.per_page,
+				page_current_page:vm.page.$model.current_page,
+				where_proId:vm.where.$model.proId,
+				where_classId:vm.where.$model.classId,
+			};
+			console.log(vd);
+			$.post(logic_urls.adminStudent,vd,
+				function(data){
+					var json = TX.toJson(data);
+					console.log(json);
+					if(json.status == 1){
+						layer.closeAll();
+						vm.program_list = json.program_list;
+						vm.class_list = json.class_list;
+						if(vm.where.proId <= 0){
+							vm.class_arr = [];
+						}
+						vm.class_select = [];
+						var sd = json.data;
+						vm.student_list = sd.data;
+						vm.page.total = sd.total;
+						vm.page.per_page = sd.per_page;
+						vm.current_page = sd.current_page;
+						vm.page.last_page = sd.last_page;
+						vm.page.page_item = [];
+						for(var i=1;i<=vm.page.last_page;i++){
+							vm.page.page_item.push(i);
+						}
+						avalon.scan();
+					}else{
+						TX.msg(json.msg,{time:5000});
+					}
+				}
+			);
+		},
+		resetItem:function(){
+			vm.item = {
+				studentName:'',
+				studentNumber:'',
+				proId:0,
+				classId:0,
+				gender:1,
+				IDCard:'',
+				birthDay:'',
+				address:'',
+				mobile:'',
+				dataFlag:1
+			};
+		},
+		toAdd:function(){
+			vm.resetItem();
+			vm.dis_model = "add";
+		},
+		toEdit:function(el){
+			vm.item = el.$model;
+			var className = '';
+			for(var i=0;i<vm.class_list.length;i++){
+				if(el.classId == vm.class_list[i]['classId']){
+					className = vm.class_list[i]['className'];
+					break;
+				}
+			}
+			if(!TX.inItem(className,"",logic_user.classArr)){
+				TX.msg("您没有足够的权限来管理" + className + "班的学生");
+				return;
+			}
+			vm.dis_model = "edit";
+		},
+		toDelete:function(el,dl){
+			var className = '';
+			for(var i=0;i<vm.class_list.length;i++){
+				if(el.classId == vm.class_list[i]['classId']){
+					className = vm.class_list[i]['className'];
+					break;
+				}
+			}
+			if(!TX.inItem(className,"",logic_user.classArr)){
+				TX.msg("您没有足够的权限来管理" + className + "班的学生");
+				return;
+			}
+			layer.confirm("删除后将不可恢复,确定要删除吗?",
+				{btn:["确定","取消"],
+					function(){
+						layer.closeAll();
+						return false;
+					}
+				},
+				function(){
+					layer.closeAll();
+					var vd = {
+						data_studentId:el.studentId,
+						page_per_page:vm.page.per_page,
+						page_current_page:vm.page.current_page,
+						where_studentName:vm.where.$model.studentName,
+						where_studentNumber:vm.where.$model.studentNumber,
+						where_proId:vm.where.$model.proId,
+						where_classId:vm.where.$model.classId,
+					};
+					TX.msg("数据提交中......",{time:30000});
+					$.post(logic_urls.delStudent,vd,
+						function(data){
+							var json = TX.toJson(data);
+							if(json.status == 1){
+								layer.closeAll();
+								vm.student_list = json.data.data;
+								vm.page.per_page = json.data.per_page;
+								vm.page.current_page = json.data.current_page;
+								vm.page.total = json.data.total;
+								vm.page.last_page = json.data.last_page;
+								vm.page.page_item = [];
+								for(var i=1;i<=vm.page.last_page;i++){
+									vm.page.page_item.push(i);
+								}
+								vm.returnList();
+								avalon.scan();
+							}else{
+								TX.msg(json.msg,{time:3000});
+							}
+						}
+					)
+				},
+				function(){
+					layer.closeAll();
+					return false;
+				}
+			);
+		},
+		toSave:function(){
+			var vd = vm.item.$model;
+			vm.saveStudent(vd);
+		},
+		saveStudent:function(arr){
+			var vd = {
+				page_per_page:vm.page.per_page,
+				page_current_page:vm.page.current_page,
+				data_studentNumber:vm.item.$model.studentNumber,
+				data_studentName:vm.item.$model.studentName,
+				data_proId:vm.item.$model.proId,
+				data_classId:vm.item.$model.classId,
+				data_gender:vm.item.$model.gender,
+				data_IDCard:vm.item.$model.IDCard,
+				data_birthDay:vm.item.$model.birthDay,
+				data_address:vm.item.$model.address,
+				data_dataFlag:vm.item.$model.dataFlag,
+				data_mobile:vm.item.$model.mobile,
+				where_studentName:vm.where.$model.studentName,
+				where_studentNumber:vm.where.$model.studentNumber,
+				where_classId:vm.where.$model.classId,
+				where_proId:vm.where.$model.proId
+			};
+			if(vm.item.studentId > 0){
+				vd.data_studentId = vm.item.$model.studentId;
+			}
+			vm.precheck(vd);
+			if(vm.err.err){
+				return;
+			}
+			TX.msg('努力加载中...',{time:30000});
+			$.post(logic_urls.saveStudent,vd,
+				function(data){
+					var json = JSON.parse(data);
+					if(json.status == 1){
+						layer.closeAll();
+						vm.student_list = json.data.data;
+						vm.page.per_page = json.data.per_page;
+						vm.page.current_page = json.data.current_page;
+						vm.page.total = json.data.total;
+						vm.page.last_page = json.data.last_page;
+						vm.page.page_item = [];
+						for(var i=1;i<=vm.page.last_page;i++){
+							vm.page.page_item.push(i);
+						}
+
+						vm.returnList();
+						avalon.scan();
+					}else{
+						TX.msg(json.msg,{time:5000});
+					}
+				}
+			);
+		},
+		returnList:function(){
+			vm.resetItem();
+			vm.dis_model = "list";
+			avalon.scan();
+		},
+		changePage:function(e,p){
+			e.preventDefault();
+			var num = vm.page.last_page;
+			if(p >=1 && p <=num){
+				vm.page.current_page = p;
+				vm.load();
+			}
+		},
+		selectForItem:function(id){
+			if(id <= 0){
+				vm.class_select = [];
+			}else{
+				vm.class_select = [];
+				for(var i=0;i<vm.class_list.length;i++){
+					if(id == vm.class_list[i]['proId']){
+						vm.class_select.push(vm.class_list[i]);
+					}
+				}
+			}
+		},
+		selectForWhere:function(id){
+			if(id <= 0){
+				vm.class_arr = [];
+			}else{
+				vm.class_arr = [];
+				for(var i=0;i<vm.class_list.length;i++){
+					if(id == vm.class_list[i]['proId']){
+						vm.class_arr.push(vm.class_list[i]);
+					}
+				}
+			}
+		},
+		checkStudentNumber:function(){
+			var vd = {
+				proId:vm.item.proId,
+				classId:vm.item.classId,
+				studentNumber:vm.item.studentNumber
+			};
+			$.post(logic_urls.checkStudentNumber,vd,
+				function(data){
+					var json = JSON.parse(data);
+					if(json.status == 1){
+						TX.msg(vm.item.studentNumber + '己经分配给其它人了,请更换学号!',{time:3000});
+						$("#studentNumber").focus();
+					}else if(json.status == 2){
+						TX.msg(json.msg,{time:2000});
+						$("#studentNumber").focus();
+					}
+				}
+			);
+		},
+		toUpload:function(){
+			$("#files1").click();
+		},
+		exportStudent:function(){
+			var vd = {
+				studentName:vm.where.$model.studentName,
+				studentNumber:vm.where.$model.studentNumber,
+				proId:vm.where.$model.proId,
+				classId:vm.where.$model.classId,
+			};
+			console.log(vd);
+			var url = logic_urls.exportStudent;
+			var str = [];
+			for(var k in vd){
+				console.log(k + '|' + vd[k]);
+				if(vd[k] != ''){
+					str.push(k + '=' + vd[k]);
+				}
+			}
+			if(str.length > 0){
+				url = url + '?' + str.join('&');
+			}
+			console.log(url);
+			window.location.href = url;
+		},
+		toDownload:function(){
+			window.location.href = "/public/upload/files/学员信息表.xlsx"
+		},
+		precheck:function(arr){
+			vm.err.err = false;
+			vm.err.msg = '';
+			vm.err.msg = validator.checkText(arr.data_studentName,1,20,"学生姓名");
+			if(vm.err.msg != ''){
+				vm.err.err = true;
+				return;
+			}
+			vm.err.msg = validator.checkNumber(arr.data_proId,"所属项目");
+			if(vm.err.msg != ''){
+				vm.err.err = true;
+				return;
+			}
+			vm.err.msg = validator.checkNumber(arr.data_classId,"所属班级");
+			if(vm.err.msg != ''){
+				vm.err.err = true;
+				return;
+			}
+			vm.err.msg = validator.checkNumber(arr.data_gender,"性别");
+			if(vm.err.msg != ''){
+				vm.err.err = true;
+				return;
+			}
+			if(undefined == arr.data_IDCard){
+				vm.err.msg = validator.checkIdCard(arr.data_IDCard);
+				if(vm.err.msg != ''){
+					vm.err.err = true;
+					return;
+				}
+			}
+			vm.err.msg = validator.checkText(arr.data_address,1,100,"家庭住址");
+			if(vm.err.msg != ''){
+				vm.err.err = true;
+				return;
+			}
+			vm.err.msg = validator.checkMobile(arr.data_mobile);
+			if(vm.err.msg != ''){
+				vm.err.err = true;
+				return;
+			}
+			vm.err.msg = validator.checkNumber(arr.data_dataFlag,"状态");
+			if(vm.err.msg != ''){
+				vm.err.err = true;
+				return;
+			}
+			if(vm.dis_model == "eidt"){
+				vm.err.msg = validator.checkNumber(arr.studentId,"学生ID");
+				if(vm.err.msg != ''){
+					vm.err.err = true;
+					return;
+				}
+			}
+		},
+
+	});
+	vm.load();
+	vm.$watch("item.proId", function (a, b) {
+		if(a != b){
+			vm.selectForItem(a);
+		}
+	});
+	vm.$watch("where.proId",function(a,b){
+		if(a != b){
+			vm.selectForWhere(a);
+		}
+	});
+	$("#files1").change(function(e){
+		if(!vm.where.proId || !vm.where.classId){
+			TX.msg('请先选择项目和班级',{time:3000});
+			return false;
+		}
+		var that = this;
+		var f = new FormData();
+		f.append('file',this.files[0]);
+		var urls = logic_urls.importStudent + '?proId=' + vm.where.proId + '&classId=' + vm.where.classId + '&dir=student&fileName=studentInfo';
+		console.log(urls);
+		$.ajax({
+			url:urls,
+			type: 'POST',
+			cache: false,
+			data: f,
+			processData: false,
+			contentType: false,
+			success:function(data){
+				var json = TX.toJson(data);
+				console.log(json);
+				if(json.status == 1){
+					TX.msg('导入学员信息成功',{time:3000,icon:3,skin: 'layer-ext-moon'});
+					
+					avalon.scan();
+				}else{
+					TX.msg('导入学员信息失败,代码为' + json.msg,{time:3000,icon:3,skin: 'layer-ext-moon'});
+					avalon.scan();
+				}
+			},
+			complete:function(data){
+				that.value = "";
+			}
+		});
+	});
+});
+</script>
+</body>
+</html>
