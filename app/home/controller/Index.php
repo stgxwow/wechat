@@ -141,7 +141,7 @@ class Index extends Base
 			exit;
 		}
 		$m=new MAM();
-		$list = collection($m->alias('m')->join('__STUDENT__ s','m.studentId=s.studentId','left')->join('__COURSE__ c','m.courseId=c.courseId','left')->join('__GROUP__ g','m.markGroup=g.groupId','left')->field('m.studentId,s.studentName,m.courseId,c.courseName,m.markGroup,g.groupName,m.score')->where('s.classId=' . $classId)->order('groupId ASC')->select())->toArray();
+		$list = collection($m->alias('m')->join('__STUDENT__ s','m.studentId=s.studentId','left')->join('__COURSE__ c','m.courseId=c.courseId','left')->join('__GROUP__ g','m.markGroup=g.groupId','left')->field('m.studentId,s.studentNumber,s.studentName,m.courseId,c.courseName,m.markGroup,g.groupName,m.score')->where('s.classId=' . $classId)->order('groupId ASC')->select())->toArray();
 		$arr = array();
 		$course = array();
 		$data = array();
@@ -156,6 +156,7 @@ class Index extends Base
 				$tempkey = array_keys($md);
 				if(!in_array($v['studentId'],$tempkey)){
 					$subItem = array();
+					$subItem['studentNumber'] = $v['studentNumber'];
 					$subItem['studentName'] = $v['studentName'];
 					$subItem['markGroup'] = $v['markGroup'];
 					$subItem['groupName'] = $v['groupName'];
@@ -193,10 +194,10 @@ class Index extends Base
 			$excel = new \PHPExcel();
 			foreach($data as $kl=>$vl){
 				$titleDesc = array();
-				$titleDesc = ['学生姓名','分组Id','分组名称'];
+				$titleDesc = ['学号','学生姓名','分组Id','分组名称'];
 				$titleDesc = array_merge($titleDesc,$course[$kl]);
 				$title = array();
-				$title = ['studentName','markGroup','groupName'];
+				$title = ['studentNumber','studentName','markGroup','groupName'];
 				$title = array_merge($title,$course[$kl]);
 				$info = '成线表' . $kl;
 				$arrs = $vl;

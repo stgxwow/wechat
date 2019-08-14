@@ -1158,7 +1158,7 @@ function getExcelDataToArray($fileName,$line){
         $temp = array();
         for($col='A';$col<=$columnCount;$col++){
             $val = $objExcel->getActiveSheet()->getCell($col.$row)->getValue();
-            if(empty($val) && empty($vak)){
+            if(strlen($val) == 0){
                 break 2;
             }
             $temp[] = $val;
