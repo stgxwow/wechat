@@ -22,7 +22,7 @@ class Group extends Base{
 			$num = 1;
 		}else{
 			$num = $sum % $page['per_page'] == 0 ? floor($sum / $page['per_page']) : floor($sum / $page['per_page']) + 1;
-		}    
+		}
 		if($page['current_page'] > $num){
 			$page['current_page'] = $num;
 		}

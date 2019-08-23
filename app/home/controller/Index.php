@@ -133,8 +133,11 @@ class Index extends Base
 		print_r($url); */
 		//$rs=getInfoByClass(1,1);
 
-
+		
 		/* 按照班级导出所有成绩 */
+		
+	}
+	public function getMarkExportByClass(){
 		$classId=input('classId/d');
 		if(empty($classId)){
 			echo "请输入班级Id";
@@ -1683,7 +1686,7 @@ class Index extends Base
 			}
 			if(!isset($where['classId']) || empty($where['classId'])){
 				/*classId为空时,指定一个不可能查到的值 */
-				$where['classId'] = "asdf";
+				$where['classId'] = -1;
 			}
 		}else{
 			$where = array();
@@ -1892,11 +1895,12 @@ class Index extends Base
 			$data['msg'] = '没有查到可用数据-03';
 			$data['data'] = $list;
 			$data['err'] = $err_list;
+			$data['filename'] = $fileName;
 			return json_encode($data);
 			exit;
 		}
 		$course = new COM();
-		$courseList = $course->where(array('classId'=>$classId,'dataFlag'=>1))->select();
+		$courseList = $course->where(array('classId'=>$classId,'dataFlag'=>1,'groupId'=>$groupId))->select();
 		if(empty($courseList)){
 			$data['status'] = -1;
 			$data['msg'] = '你的班级还没有设置课程,请先添加相应课程再次尝试.-04';
@@ -1922,6 +1926,8 @@ class Index extends Base
 			$data['msg'] = 'EXCEL表中的课程数量要多于您所在班级中设置的课程数量,请确认课程后再次尝试!-06';
 			$data['data'] = $list;
 			$data['err'] = $err_list;
+			$data['tar'] = $tar;
+			$data['courseList'] = $courseList;
 			return json_encode($data);
 			exit;
 		}
@@ -1948,13 +1954,17 @@ class Index extends Base
 			$temp = array();
 			$studentId = getStudentIdByName($v[1],$classId,$v[0]);
 			if(empty($studentId)){
-				$err_list[] = '在学员表中没有查到"' . $v[1] . '",成绩无法添加';
+				$err_list[] = '在学员表中没有查到"' . $v[0] . '-' . $v[1] . '",成绩无法添加';
 			}else{
 				for($i=2;$i<count($v);$i++){
 					$temp['studentId'] = $studentId;
 					$temp['courseId'] = $course_list[$i-2];
 					$temp['markGroup'] = $groupId;
-					$temp['score'] = $v[$i];
+					if(!isset($v[$i]) || empty($v[$i])){
+						$temp['score'] = 0.0;
+					}else{
+						$temp['score'] = $v[$i];
+					}
 					$temp['dataFlag'] = 1;
 					$arr[] = $temp;
 				}

@@ -168,6 +168,7 @@ class Apps extends Controller
 	public function searchStudentInfo(){
 		$studentId = input('studentId/d');
 		$groupId = input('groupId/d');
+		$hostName = 'https://' . $_SERVER['HTTP_HOST'];
 		if($studentId <= 0 || $groupId <= 0){
 			$data['status'] == -1;
 			$data['msg'] = '参数错误';
@@ -188,9 +189,9 @@ class Apps extends Controller
 						$ars = array('src'=>'','title'=>'');
 					}else{
 						if(count($ttp) == 1){
-							$ars = array('src'=>$ttp[0],'title'=>'');
+							$ars = array('src'=>$hostName . $ttp[0],'title'=>'');
 						}else{
-							$ars = array('src'=>$ttp[0],'title'=>$ttp[1]);
+							$ars = array('src'=>$hostName . $ttp[0],'title'=>$ttp[1]);
 						}
 					}
 					$arr[] = $ars;
@@ -220,6 +221,15 @@ class Apps extends Controller
 		$data['status'] = 1;
 		$data['msg'] = 'ok';
 		$data['data'] = $list;
+		$data['host'] = $hostName;
+		return json_encode($data);
+	}
+
+	public function signin(){
+		$arr = input();
+		$data['status'] = 1;
+		$data['msg'] = 'ok';
+		$data['data'] = $arr;
 		return json_encode($data);
 	}
 

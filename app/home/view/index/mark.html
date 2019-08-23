@@ -33,7 +33,7 @@
 				<option ms-for="el in @class_arr" ms-attr="{value:el.classId}" ms-text="el.className"></option>
 			</select>
 			<select class="form-control" ms-duplex="@groupId" ms-attr-disabled="@update > 0">
-				<option disabled selected value="0">请选择成绩分组</option>
+				<option selected value="0">请选择成绩分组</option>
 				<option ms-for="el in @group_list" ms-attr="{value:el.groupId}" ms-text="el.groupName"></option>
 			</select>
 			<button class="btn btn-primary" ms-click="search">查询</button>
@@ -224,6 +224,7 @@ jQuery(document).ready(function(){
 					vm.group_list.push(vm.allgroup_list[i]);
 				}
 			}
+			vm.groupId = 0;
 		}
 	});
 	$("#files1").change(function(e){

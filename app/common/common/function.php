@@ -249,8 +249,29 @@ function getClassesByUserLogin(){
     if(empty($users['classList'])){
         return array();
     }
-    $where = 'className in (' . $users['classList'] . ') and dataFlag=1';
-    $list = Db::name('classes')->where($where)->select();
+    $arr = $users['classArr'];
+    if(!isset($arr) || empty($arr)){
+        return array();
+    }
+    $proId = $users['proId'];
+    if(!isset($proId) || empty($proId)){
+        $proId = 0;
+    }
+    $list = array();
+    foreach($arr as $k=>$v){
+        $where = array();
+        $where['className'] = $v;
+        $where['dataFlag'] = 1;
+        if($proId > 0){
+            $where['proId'] = $proId;
+        }
+        $rs = collection(Db::name('classes')->where($where)->find())->toArray();
+        if(!empty($rs)){
+            $list[] = $rs;
+        }
+    }
+    //$where = "className in ('" . $users['classList'] . "') and dataFlag=1";
+    //$list = Db::name('classes')->where($where)->select();
     return $list;
 }
 
@@ -1154,11 +1175,18 @@ function getExcelDataToArray($fileName,$line){
     $columnCount = $objExcel->getActiveSheet()->getHighestColumn();
     $col_title = array('A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','AA','AB','AC','AD','AE','AF','AG','AH','AI','AJ','AK','AL','AM','AN','AO','AP','AQ','AR','AS','AT','AU','AV','AW','AX','AY','AZ');
     $arr = array();
+    for($col='A';$col<=$columnCount;$col++){
+        $cl = $objExcel->getActiveSheet()->getCell($col.$line)->getValue();
+        if(strlen($cl) == 0){
+            $columnCount = $col;
+            break;
+        }
+    }
     for($row=$line;$row<=$rowCount;$row++){
         $temp = array();
         for($col='A';$col<=$columnCount;$col++){
             $val = $objExcel->getActiveSheet()->getCell($col.$row)->getValue();
-            if(strlen($val) == 0){
+            if($col == 'A' && strlen($val) == 0){
                 break 2;
             }
             $temp[] = $val;
